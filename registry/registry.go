@@ -23,6 +23,10 @@ func Register(node *Node, opts ...RegisterOption) error {
 	return DefaultRegistry.Register(node, opts...)
 }
 
+func Deregister(node *Node) error {
+	return DefaultRegistry.Deregister(node)
+}
+
 func ListNodes(opts ...NodeOption) (nodes []*Node, err error) {
 	return DefaultRegistry.ListNodes(opts...)
 }
