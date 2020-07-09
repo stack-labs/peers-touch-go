@@ -1,19 +1,3 @@
-# Peers-Touch
+# Peers-Touch-GO
 
-P2P 远程通信框架（库）。
-
-解决远程P2P节点的注册、发现、通信问题。
-
-## 特性
-
-**通信**，基于P2P文件流通信
-
-**认证**，通信过程安全认证
-
-**存储**，支持文件存储到任何地方，本地或云端
-
-**注册与发现**，节点注册与发现
-
-## 参考
-
-通信服务模型在设计上受[Go-Micro](https://github.com/micro/go-micro)微服务框架启发，其中包括代码结构、框架重要通信组件设计（含接口）。
+P2P communication lib in Go based on IPFS
