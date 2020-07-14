@@ -3,6 +3,7 @@ package node
 import (
 	"context"
 	"github.com/ipfs/go-ipfs/core/node/libp2p"
+	core "github.com/libp2p/go-libp2p-core"
 	"sync"
 
 	ipfsCore "github.com/ipfs/go-ipfs/core"
@@ -11,16 +12,33 @@ import (
 
 type Node interface {
 	IPFS() coreapi.CoreAPI
-	ID() string
-	Connect() error
+	ID() PeerID
+	Connect(peerInfo PeerInfo) error
+	Touch() error
 	Close()
 }
 
+type PeerInfo = core.PeerAddrInfo
+type PeerID = core.PeerID
+
 type node struct {
+	ctx  context.Context
 	ipfs coreapi.CoreAPI
 
 	muPubSub sync.RWMutex
 	muIPFS   sync.RWMutex
+}
+
+func (n *node) Connect(peerInfo PeerInfo) error {
+	return n.ipfs.Swarm().Connect(n.ctx, peerInfo)
+}
+
+func (n *node) ID() string {
+	panic("implement me")
+}
+
+func (n *node) Close() {
+	panic("implement me")
 }
 
 func (n *node) IPFS() coreapi.CoreAPI {
