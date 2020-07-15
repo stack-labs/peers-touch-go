@@ -17,9 +17,11 @@ type Node interface {
 	Broker() pubsub.Broker
 	Connect(peerInfo peer.PeerInfo) error
 	Disconnect(multiAddr peer.PeerMultiAddr) error
-	Touch() error
+	// Touch the file#subjectID from peer#peerID
+	Touch(peerID peer.PeerID, subjectID string) ([]byte, error)
 	Close()
 }
+
 
 type node struct {
 	ctx      context.Context
