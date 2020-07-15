@@ -22,7 +22,6 @@ type Node interface {
 	Close()
 }
 
-
 type node struct {
 	ctx      context.Context
 	ipfs     coreapi.CoreAPI
