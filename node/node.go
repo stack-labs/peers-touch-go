@@ -2,43 +2,57 @@ package node
 
 import (
 	"context"
-	"github.com/ipfs/go-ipfs/core/node/libp2p"
-	core "github.com/libp2p/go-libp2p-core"
 	"sync"
 
 	ipfsCore "github.com/ipfs/go-ipfs/core"
 	"github.com/ipfs/go-ipfs/core/coreapi"
+	"github.com/ipfs/go-ipfs/core/node/libp2p"
+	"github.com/joincloud/peers-touch/peer"
+	"github.com/joincloud/peers-touch/pubsub"
 )
 
 type Node interface {
 	IPFS() coreapi.CoreAPI
-	ID() PeerID
-	Connect(peerInfo PeerInfo) error
+	ID() peer.PeerID
+	Broker() pubsub.Broker
+	Connect(peerInfo peer.PeerInfo) error
+	Disconnect(multiAddr peer.PeerMultiAddr) error
 	Touch() error
 	Close()
 }
 
-type PeerInfo = core.PeerAddrInfo
-type PeerID = core.PeerID
-
 type node struct {
-	ctx  context.Context
-	ipfs coreapi.CoreAPI
-
+	ctx      context.Context
+	ipfs     coreapi.CoreAPI
+	id       peer.PeerID
+	broker   pubsub.Broker
 	muPubSub sync.RWMutex
 	muIPFS   sync.RWMutex
 }
 
-func (n *node) Connect(peerInfo PeerInfo) error {
+func (n *node) Broker() pubsub.Broker {
+	return n.broker
+}
+
+func (n *node) Touch() error {
+	panic("implement me")
+}
+
+func (n *node) Connect(peerInfo peer.PeerInfo) error {
 	return n.ipfs.Swarm().Connect(n.ctx, peerInfo)
 }
 
-func (n *node) ID() string {
-	panic("implement me")
+func (n *node) Disconnect(multiAddr peer.PeerMultiAddr) error {
+	return n.ipfs.Swarm().Disconnect(n.ctx, multiAddr)
+}
+
+func (n *node) ID() peer.PeerID {
+	return n.id
 }
 
 func (n *node) Close() {
 	panic("implement me")
+
 }
 
 func (n *node) IPFS() coreapi.CoreAPI {
