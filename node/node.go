@@ -7,6 +7,7 @@ import (
 	ipfsCore "github.com/ipfs/go-ipfs/core"
 	"github.com/ipfs/go-ipfs/core/coreapi"
 	"github.com/ipfs/go-ipfs/core/node/libp2p"
+	"github.com/joincloud/peers-touch/file"
 	"github.com/joincloud/peers-touch/peer"
 	"github.com/joincloud/peers-touch/pubsub"
 )
@@ -18,7 +19,7 @@ type Node interface {
 	Connect(peerInfo peer.PeerInfo) error
 	Disconnect(multiAddr peer.PeerMultiAddr) error
 	// Touch the file#subjectID from peer#peerID
-	Touch(peerID peer.PeerID, subjectID string) ([]byte, error)
+	Touch(peerID peer.PeerID, subjectID string) (file.File, error)
 	Close()
 }
 
@@ -31,12 +32,12 @@ type node struct {
 	muIPFS   sync.RWMutex
 }
 
-func (n *node) Broker() pubsub.Broker {
-	return n.broker
+func (n *node) Touch(peerID peer.PeerID, subjectID string) (file.File, error) {
+	panic("implement me")
 }
 
-func (n *node) Touch() error {
-	panic("implement me")
+func (n *node) Broker() pubsub.Broker {
+	return n.broker
 }
 
 func (n *node) Connect(peerInfo peer.PeerInfo) error {
