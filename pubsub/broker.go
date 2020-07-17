@@ -2,6 +2,9 @@ package pubsub
 
 import (
 	"context"
+	"sync"
+
+	"github.com/ipfs/go-ipfs/core/coreapi"
 )
 
 type Broker interface {
@@ -29,21 +32,27 @@ type Event interface {
 }
 
 type broker struct {
+	coreAPI       coreapi.CoreAPI
+	subscriptions map[string]Subscriber
+	muMux         sync.RWMutex
 }
 
-func (b broker) Pub(ctx context.Context, event Event) error {
+func (b *broker) Pub(ctx context.Context, event Event) error {
 	panic("implement me")
 }
 
-func (b broker) Sub(ctx context.Context, topic string) (Subscriber, error) {
+func (b *broker) Sub(ctx context.Context, topic string) (Subscriber, error) {
+	b.muMux.Lock()
+	defer b.muMux.Unlock()
+
+	return
+}
+
+func (b *broker) Unsub(topic string) error {
 	panic("implement me")
 }
 
-func (b broker) Unsub(topic string) error {
-	panic("implement me")
-}
-
-func (b broker) Close() error {
+func (b *broker) Close() error {
 	panic("implement me")
 }
 
@@ -53,7 +62,9 @@ func NewBroker(options ...BrokerOption) Broker {
 		option(bo)
 	}
 
-	b := &broker{}
+	b := &broker{
+		coreAPI: bo.coreAPI,
+	}
 
 	return b
 }
