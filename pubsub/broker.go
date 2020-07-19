@@ -2,6 +2,7 @@ package pubsub
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"sync"
 
 	"github.com/ipfs/go-ipfs/core/coreapi"
@@ -38,6 +39,10 @@ type broker struct {
 }
 
 func (b *broker) Pub(ctx context.Context, event Event) error {
+	err := b.coreAPI.PubSub().Publish(ctx, c.id, data)
+	if err != nil {
+		return errors.Wrap(err, "unable to publish data on pubsub")
+	}
 	panic("implement me")
 }
 
