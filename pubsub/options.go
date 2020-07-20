@@ -17,6 +17,7 @@ func BrokerCoreAPI(coreAPI *coreapi.CoreAPI) BrokerOption {
 type SubOptions struct {
 	Topic   string
 	coreAPI *coreapi.CoreAPI
+	Handler Handler
 }
 
 type SubOption func(o *SubOptions)
