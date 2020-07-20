@@ -20,37 +20,44 @@ type Message struct {
 	Body   []byte
 }
 
-type Subscriber interface {
-	Topic() string
-	Unsubscribe() error
-}
-
 type Event interface {
 	Topic() string
-	Message() *Message
+	Message() []byte
 	Ack() error
 	Error() error
 }
 
 type broker struct {
-	coreAPI       coreapi.CoreAPI
-	subscriptions map[string]Subscriber
-	muMux         sync.RWMutex
+	coreAPI     coreapi.CoreAPI
+	subscribers map[string]Subscriber
+	muMux       sync.RWMutex
 }
 
-func (b *broker) Pub(ctx context.Context, event Event) error {
-	err := b.coreAPI.PubSub().Publish(ctx, c.id, data)
+func (b *broker) Pub(ctx context.Context, event Event) (err error) {
+	err = b.coreAPI.PubSub().Publish(ctx, event.Topic(), event.Message())
 	if err != nil {
 		return errors.Wrap(err, "unable to publish data on pubsub")
 	}
-	panic("implement me")
+
+	return
 }
 
 func (b *broker) Sub(ctx context.Context, topic string) (Subscriber, error) {
 	b.muMux.Lock()
 	defer b.muMux.Unlock()
 
-	return
+	if sub, ok := b.subscribers[topic]; ok {
+		return sub, nil
+	}
+
+	s, err := NewSubscription(ctx, b.coreAPI, topic, &SubOptions{
+		Logger: p.logger,
+		Tracer: p.tracer,
+	})
+
+	b.subscribers[topic] = s
+
+	return s, nil
 }
 
 func (b *broker) Unsub(topic string) error {
@@ -72,4 +79,8 @@ func NewBroker(options ...BrokerOption) Broker {
 	}
 
 	return b
+}
+
+func NewSubscription(ctx context.Context, api coreapi.CoreAPI, topic string, options SubOptions) (s Subscriber, err error) {
+
 }
