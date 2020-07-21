@@ -19,6 +19,7 @@ type subscriber struct {
 	ipfs       coreapi.CoreAPI
 	ipfsPubSub iface.PubSubSubscription
 	peerID     peer.PeerID
+	handler    Handler
 }
 
 func (s *subscriber) Topic() string {
@@ -46,10 +47,11 @@ func (s *subscriber) start(ctx context.Context) {
 			continue
 		}
 
+		s.handler()
 	}
 }
 
-func NewSubscriber(ctx context.Context, ipfs coreapi.CoreAPI, topic string, opts ...SubOption) (sub Subscriber, err error) {
+func NewSubscriber(ctx context.Context, ipfs coreapi.CoreAPI, topic string, handler Handler, opts ...SubOption) (sub Subscriber, err error) {
 	options := &SubOptions{}
 	for _, opt := range opts {
 		opt(options)
@@ -73,9 +75,10 @@ func NewSubscriber(ctx context.Context, ipfs coreapi.CoreAPI, topic string, opts
 		ipfs:       coreapi.CoreAPI{},
 		ipfsPubSub: pubSubSub,
 		peerID:     id.ID(),
+		handler:    handler,
 	}
 
-	go s.start()
+	go s.start(ctx)
 
 	sub = s
 	return

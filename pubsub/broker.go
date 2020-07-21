@@ -20,14 +20,29 @@ type Message struct {
 	Body   []byte
 }
 
+func (m *Message) Bytes() []byte {
+	return nil
+}
+
 type Event interface {
 	Topic() string
-	Message() []byte
-	Ack() error
-	Error() error
+	Message() Message
 }
 
 type Handler func(event Event)
+
+type event struct {
+	t string
+	m Message
+}
+
+func (m *event) Topic() string {
+	panic("implement me")
+}
+
+func (m *event) Message() Message {
+	panic("implement me")
+}
 
 type broker struct {
 	coreAPI     *coreapi.CoreAPI
@@ -36,7 +51,7 @@ type broker struct {
 }
 
 func (b *broker) Pub(ctx context.Context, event Event) (err error) {
-	err = b.coreAPI.PubSub().Publish(ctx, event.Topic(), event.Message())
+	err = b.coreAPI.PubSub().Publish(ctx, event.Topic(), event.Message().Bytes())
 	if err != nil {
 		return errors.Wrap(err, "unable to publish data on pubsub")
 	}
@@ -86,4 +101,14 @@ func NewBroker(options ...BrokerOption) Broker {
 
 func NewSubscription(ctx context.Context, api *coreapi.CoreAPI, topic string, options *SubOptions) (s Subscriber, err error) {
 
+}
+
+func NewEvent(topic string, content []byte) Event {
+	return &event{
+		t: topic,
+		m: &Message{
+			Header: nil,
+			Body:   content,
+		}
+	}
 }
