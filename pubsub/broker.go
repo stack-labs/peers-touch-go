@@ -10,7 +10,7 @@ import (
 
 type Broker interface {
 	Pub(ctx context.Context, event Event) error
-	Sub(ctx context.Context, topic string) (Subscriber, error)
+	Sub(ctx context.Context, topic string, handler Handler) (Subscriber, error)
 	Unsub(topic string) error
 	Close() error
 }
@@ -33,7 +33,7 @@ type Handler func(event Event)
 
 type event struct {
 	t string
-	m Message
+	m *Message
 }
 
 func (m *event) Topic() string {
@@ -48,6 +48,7 @@ type broker struct {
 	coreAPI     *coreapi.CoreAPI
 	subscribers map[string]Subscriber
 	muMux       sync.RWMutex
+	exit        chan chan error
 }
 
 func (b *broker) Pub(ctx context.Context, event Event) (err error) {
@@ -67,11 +68,11 @@ func (b *broker) Sub(ctx context.Context, topic string, handler Handler) (Subscr
 		return sub, nil
 	}
 
-	s, _ := NewSubscription(ctx, b.coreAPI, topic, &SubOptions{
-		Topic:   topic,
-		coreAPI: b.coreAPI,
-		Handler: handler,
-	})
+	s, _ := NewSubscriber(ctx,
+		SubTopic(topic),
+		SubCoreAPI(b.coreAPI),
+		SubHandler(handler),
+	)
 
 	b.subscribers[topic] = s
 
@@ -79,11 +80,19 @@ func (b *broker) Sub(ctx context.Context, topic string, handler Handler) (Subscr
 }
 
 func (b *broker) Unsub(topic string) error {
-	panic("implement me")
+	b.muMux.Lock()
+	defer b.muMux.Unlock()
+
+	delete(b.subscribers, topic)
+
+	return nil
 }
 
 func (b *broker) Close() error {
-	panic("implement me")
+	ch := make(chan error)
+	b.exit <- ch
+	err := <-ch
+	return err
 }
 
 func NewBroker(options ...BrokerOption) Broker {
@@ -99,16 +108,12 @@ func NewBroker(options ...BrokerOption) Broker {
 	return b
 }
 
-func NewSubscription(ctx context.Context, api *coreapi.CoreAPI, topic string, options *SubOptions) (s Subscriber, err error) {
-
-}
-
 func NewEvent(topic string, content []byte) Event {
 	return &event{
 		t: topic,
 		m: &Message{
 			Header: nil,
 			Body:   content,
-		}
+		},
 	}
 }

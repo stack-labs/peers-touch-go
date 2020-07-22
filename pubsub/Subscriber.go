@@ -3,6 +3,7 @@ package pubsub
 import (
 	"context"
 	"fmt"
+
 	"github.com/ipfs/go-ipfs/core/coreapi"
 	"github.com/ipfs/interface-go-ipfs-core"
 	"github.com/joincloud/peers-touch/peer"
@@ -47,11 +48,12 @@ func (s *subscriber) start(ctx context.Context) {
 			continue
 		}
 
-		s.handler()
+		evt := NewEvent(s.Topic(), msg.Data())
+		s.handler(evt)
 	}
 }
 
-func NewSubscriber(ctx context.Context, ipfs coreapi.CoreAPI, topic string, handler Handler, opts ...SubOption) (sub Subscriber, err error) {
+func NewSubscriber(ctx context.Context, opts ...SubOption) (sub Subscriber, err error) {
 	options := &SubOptions{}
 	for _, opt := range opts {
 		opt(options)
@@ -61,12 +63,12 @@ func NewSubscriber(ctx context.Context, ipfs coreapi.CoreAPI, topic string, hand
 		return nil, fmt.Errorf("wrong empty topic")
 	}
 
-	pubSubSub, err := ipfs.PubSub().Subscribe(ctx, topic)
+	pubSubSub, err := options.coreAPI.PubSub().Subscribe(ctx, options.Topic)
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := ipfs.Key().Self(ctx)
+	id, err := options.coreAPI.Key().Self(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get id for user")
 	}
@@ -75,7 +77,7 @@ func NewSubscriber(ctx context.Context, ipfs coreapi.CoreAPI, topic string, hand
 		ipfs:       coreapi.CoreAPI{},
 		ipfsPubSub: pubSubSub,
 		peerID:     id.ID(),
-		handler:    handler,
+		handler:    options.Handler,
 	}
 
 	go s.start(ctx)

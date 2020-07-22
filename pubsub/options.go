@@ -20,10 +20,26 @@ type SubOptions struct {
 	Handler Handler
 }
 
+func NewSubOptions() SubOptions {
+	return SubOptions{}
+}
+
 type SubOption func(o *SubOptions)
 
 func SubCoreAPI(coreAPI *coreapi.CoreAPI) SubOption {
 	return func(o *SubOptions) {
 		o.coreAPI = coreAPI
+	}
+}
+
+func SubTopic(topic string) SubOption {
+	return func(o *SubOptions) {
+		o.Topic = topic
+	}
+}
+
+func SubHandler(handler Handler) SubOption {
+	return func(o *SubOptions) {
+		o.Handler = handler
 	}
 }
