@@ -9,7 +9,6 @@ import (
 	mock "github.com/ipfs/go-ipfs/core/mock"
 	iface "github.com/ipfs/interface-go-ipfs-core"
 	mocknet "github.com/libp2p/go-libp2p/p2p/net/mock"
-	. "github.com/smartystreets/goconvey/convey"
 )
 
 type cleanFunc func()
@@ -21,8 +20,6 @@ func newIPFSAPI(t *testing.T, core *ipfsCore.IpfsNode) (api iface.CoreAPI) {
 	if api, err = coreapi.NewCoreAPI(core); err != nil {
 		t.Fatal(err)
 	}
-
-	Convey("")
 
 	return
 }

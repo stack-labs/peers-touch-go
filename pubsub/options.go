@@ -1,14 +1,17 @@
 package pubsub
 
-import "github.com/ipfs/go-ipfs/core/coreapi"
+import (
+	"github.com/ipfs/go-ipfs/core/coreapi"
+	iface "github.com/ipfs/interface-go-ipfs-core"
+)
 
 type BrokerOptions struct {
-	coreAPI *coreapi.CoreAPI
+	coreAPI iface.CoreAPI
 }
 
 type BrokerOption func(o *BrokerOptions)
 
-func BrokerCoreAPI(coreAPI *coreapi.CoreAPI) BrokerOption {
+func BrokerCoreAPI(coreAPI iface.CoreAPI) BrokerOption {
 	return func(o *BrokerOptions) {
 		o.coreAPI = coreAPI
 	}
