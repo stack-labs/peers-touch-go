@@ -33,15 +33,15 @@ type Handler func(event Event)
 
 type event struct {
 	t string
-	m *Message
+	m Message
 }
 
-func (m *event) Topic() string {
-	panic("implement me")
+func (e *event) Topic() string {
+	return e.t
 }
 
-func (m *event) Message() Message {
-	panic("implement me")
+func (e *event) Message() Message {
+	return e.m
 }
 
 type broker struct {
@@ -102,7 +102,9 @@ func NewBroker(options ...BrokerOption) Broker {
 	}
 
 	b := &broker{
-		coreAPI: bo.coreAPI,
+		coreAPI:     bo.coreAPI,
+		subscribers: map[string]Subscriber{},
+		exit:        make(chan chan error),
 	}
 
 	return b
@@ -111,7 +113,7 @@ func NewBroker(options ...BrokerOption) Broker {
 func NewEvent(topic string, content []byte) Event {
 	return &event{
 		t: topic,
-		m: &Message{
+		m: Message{
 			Header: nil,
 			Body:   content,
 		},
