@@ -2,10 +2,10 @@ package pubsub
 
 import (
 	"context"
-	"github.com/pkg/errors"
 	"sync"
 
-	"github.com/ipfs/go-ipfs/core/coreapi"
+	iface "github.com/ipfs/interface-go-ipfs-core"
+	"github.com/pkg/errors"
 )
 
 type Broker interface {
@@ -20,7 +20,7 @@ type Message struct {
 	Body   []byte
 }
 
-func (m *Message) Bytes() []byte {
+func (m Message) Bytes() []byte {
 	return nil
 }
 
@@ -45,7 +45,7 @@ func (e *event) Message() Message {
 }
 
 type broker struct {
-	coreAPI     *coreapi.CoreAPI
+	coreAPI     iface.CoreAPI
 	subscribers map[string]Subscriber
 	muMux       sync.RWMutex
 	exit        chan chan error
