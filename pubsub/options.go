@@ -1,7 +1,6 @@
 package pubsub
 
 import (
-	"github.com/ipfs/go-ipfs/core/coreapi"
 	iface "github.com/ipfs/interface-go-ipfs-core"
 )
 
@@ -19,7 +18,7 @@ func BrokerCoreAPI(coreAPI iface.CoreAPI) BrokerOption {
 
 type SubOptions struct {
 	Topic   string
-	coreAPI *coreapi.CoreAPI
+	coreAPI iface.CoreAPI
 	Handler Handler
 }
 
@@ -29,7 +28,7 @@ func NewSubOptions() SubOptions {
 
 type SubOption func(o *SubOptions)
 
-func SubCoreAPI(coreAPI *coreapi.CoreAPI) SubOption {
+func SubCoreAPI(coreAPI iface.CoreAPI) SubOption {
 	return func(o *SubOptions) {
 		o.coreAPI = coreAPI
 	}
