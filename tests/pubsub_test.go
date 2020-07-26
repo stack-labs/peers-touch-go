@@ -9,8 +9,7 @@ import (
 )
 
 func TestBrokerSub(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := context.Background()
 
 	mocknet := testingMockNet(ctx)
 	node, clean := testingIPFSNode(ctx, t, mocknet)

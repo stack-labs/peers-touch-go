@@ -35,16 +35,19 @@ func (s *subscriber) start(ctx context.Context) {
 	for {
 		msg, err := s.ipfsPubSub.Next(ctx)
 		if err != nil {
-			// todo error
+			fmt.Printf("msg err: %s", err.Error())
+			continue
 		}
 
 		// ignore self msg
 		if msg.From() == s.peerID {
+			fmt.Printf("ignore self msg")
 			continue
 		}
 
 		topic := msg.Topics()[0]
 		if topic != s.opts.Topic {
+			fmt.Printf("ignore topic")
 			continue
 		}
 
