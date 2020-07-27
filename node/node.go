@@ -5,15 +5,15 @@ import (
 	"sync"
 
 	ipfsCore "github.com/ipfs/go-ipfs/core"
-	"github.com/ipfs/go-ipfs/core/coreapi"
 	"github.com/ipfs/go-ipfs/core/node/libp2p"
+	iface "github.com/ipfs/interface-go-ipfs-core"
 	"github.com/joincloud/peers-touch/file"
 	"github.com/joincloud/peers-touch/peer"
 	"github.com/joincloud/peers-touch/pubsub"
 )
 
 type Node interface {
-	IPFS() coreapi.CoreAPI
+	IPFS() iface.CoreAPI
 	ID() peer.PeerID
 	Broker() pubsub.Broker
 	Connect(peerInfo peer.PeerInfo) error
@@ -25,7 +25,7 @@ type Node interface {
 
 type node struct {
 	ctx      context.Context
-	ipfs     coreapi.CoreAPI
+	ipfs     iface.CoreAPI
 	id       peer.PeerID
 	broker   pubsub.Broker
 	muPubSub sync.RWMutex
@@ -57,27 +57,31 @@ func (n *node) Close() {
 
 }
 
-func (n *node) IPFS() coreapi.CoreAPI {
+func (n *node) IPFS() iface.CoreAPI {
 	n.muIPFS.RLock()
 	defer n.muIPFS.RUnlock()
 
 	return n.ipfs
 }
 
-func NewNode(ctx context.Context, ipfs coreapi.CoreAPI, options ...Option) (n Node, err error) {
+func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 	opts := &Options{}
 	for _, o := range options {
 		o(opts)
 	}
 
-	n = newNode(ctx, ipfs, opts)
+	if opts.IPFS == nil {
+
+	}
+
+	n = newNode(ctx, opts)
 
 	return
 }
 
-func newNode(ctx context.Context, ipfs coreapi.CoreAPI, options *Options) *node {
+func newNode(ctx context.Context, options *Options) *node {
 	n := &node{
-		ipfs: ipfs,
+		ipfs: options.IPFS,
 	}
 
 	return n
