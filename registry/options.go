@@ -2,6 +2,7 @@ package registry
 
 import (
 	"context"
+	"github.com/libp2p/go-libp2p-core/host"
 	"time"
 )
 
@@ -13,6 +14,8 @@ type NodeOptions struct {
 }
 
 type RegisterOptions struct {
-	TTL     time.Duration
-	Context context.Context
+	TTL      time.Duration
+	Context  context.Context
+	Host     host.Host
+	Interval time.Duration
 }

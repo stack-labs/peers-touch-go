@@ -1,5 +1,11 @@
 package registry
 
+import (
+	"context"
+	"github.com/libp2p/go-libp2p-core/host"
+	"time"
+)
+
 type Registry interface {
 	Register(node *Node, opts ...RegisterOption) error
 	Deregister(node *Node) error
@@ -29,4 +35,28 @@ func Deregister(node *Node) error {
 
 func ListNodes(opts ...NodeOption) (nodes []*Node, err error) {
 	return DefaultRegistry.ListNodes(opts...)
+}
+
+func RegisterContext(ctx context.Context) RegisterOption {
+	return func(options *RegisterOptions) {
+		options.Context = ctx
+	}
+}
+
+func RegisterHost(h host.Host) RegisterOption {
+	return func(options *RegisterOptions) {
+		options.Host = h
+	}
+}
+
+func RegisterInterval(duration time.Duration) RegisterOption {
+	return func(options *RegisterOptions) {
+		options.Interval = duration
+	}
+}
+
+func RegisterTTL(ttl time.Duration) RegisterOption {
+	return func(options *RegisterOptions) {
+		options.TTL = ttl
+	}
 }
