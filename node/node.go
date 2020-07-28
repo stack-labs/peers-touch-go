@@ -7,9 +7,14 @@ import (
 	ipfsCore "github.com/ipfs/go-ipfs/core"
 	"github.com/ipfs/go-ipfs/core/node/libp2p"
 	iface "github.com/ipfs/interface-go-ipfs-core"
-	"github.com/joincloud/peers-touch/file"
-	"github.com/joincloud/peers-touch/peer"
-	"github.com/joincloud/peers-touch/pubsub"
+	"github.com/joincloud/peers-touch－go/file"
+	"github.com/joincloud/peers-touch－go/peer"
+	"github.com/joincloud/peers-touch－go/pubsub"
+	golib "github.com/libp2p/go-libp2p"
+)
+
+var (
+	DefaultAddrs = []string{"/ip4/0.0.0.0/tcp/0"}
 )
 
 type Node interface {
@@ -28,6 +33,7 @@ type node struct {
 	ipfs     iface.CoreAPI
 	id       peer.PeerID
 	broker   pubsub.Broker
+	host     peer.Host
 	muPubSub sync.RWMutex
 	muIPFS   sync.RWMutex
 }
@@ -70,8 +76,23 @@ func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 		o(opts)
 	}
 
+	if opts.Adds == nil {
+		opts.Adds = DefaultAddrs
+	}
+
+	if opts.Host == nil {
+		opts.Host, err = golib.New(ctx, golib.ListenAddrStrings(opts.Adds...))
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	if opts.IPFS == nil {
 
+	}
+
+	if opts.Broker == nil {
+		opts.Broker = pubsub.NewBroker()
 	}
 
 	n = newNode(ctx, opts)
@@ -81,7 +102,9 @@ func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 
 func newNode(ctx context.Context, options *Options) *node {
 	n := &node{
-		ipfs: options.IPFS,
+		ipfs:   options.IPFS,
+		broker: options.Broker,
+		id:     options.PeerID,
 	}
 
 	return n
