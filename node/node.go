@@ -21,7 +21,7 @@ type Node interface {
 	IPFS() iface.CoreAPI
 	ID() peer.PeerID
 	Broker() pubsub.Broker
-	Connect(peerInfo peer.PeerInfo) error
+	Connect(peerInfo peer.PeerAddrInfo) error
 	Disconnect(multiAddr peer.PeerMultiAddr) error
 	// Touch the file#subjectID from peer#peerID
 	Touch(peerID peer.PeerID, subjectID string) (file.File, error)
@@ -46,7 +46,7 @@ func (n *node) Broker() pubsub.Broker {
 	return n.broker
 }
 
-func (n *node) Connect(peerInfo peer.PeerInfo) error {
+func (n *node) Connect(peerInfo peer.PeerAddrInfo) error {
 	return n.ipfs.Swarm().Connect(n.ctx, peerInfo)
 }
 

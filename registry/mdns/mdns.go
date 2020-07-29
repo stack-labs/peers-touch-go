@@ -1,6 +1,8 @@
 package mdns
 
 import (
+	"context"
+	"fmt"
 	"github.com/joincloud/peers-touch－go/registry"
 	"github.com/libp2p/go-libp2p/p2p/discovery"
 	"time"
@@ -13,16 +15,44 @@ const DiscoveryInterval = time.Hour
 const DiscoveryServiceTag = "pubsub-chat-example"
 
 type mdns struct {
-	service discovery.Service
+	discoverMap map[string]*discovery.Service
 }
 
-func (m *mdns) Register(node *registry.Node, opts ...registry.RegisterOption) error {
+func (m *mdns) Register(node *registry.Node, opts ...registry.RegisterOption) (err error) {
+	options := &registry.RegisterOptions{}
+	for _, opt := range opts {
+		opt(options)
+	}
 
-	panic("implement me")
+	if options.Context == nil {
+		options.Context = context.Background()
+	}
+
+	if options.Host == nil {
+		return fmt.Errorf("Host is nil ")
+	}
+
+	disc, err := discovery.NewMdnsService(options.Context, options.Host, DiscoveryInterval, DiscoveryServiceTag)
+	if err != nil {
+		return fmt.Errorf("discover register error: %s", err)
+	}
+	if _, ok := m.discoverMap[node.Name]; !ok {
+		m.discoverMap[node.Name] = &disc
+	}
+
+	node.Host = options.Host
+	disc.RegisterNotifee(node)
+
+	return
 }
 
 func (m *mdns) Deregister(node *registry.Node) error {
-	panic("implement me")
+	// todo
+	if disc, ok := m.discoverMap[node.Name]; ok {
+		disc.UnregisterNotifee(node)
+	}
+
+	return nil
 }
 
 func (m *mdns) GetNode(...registry.NodeOption) (node *registry.Node, err error) {
