@@ -1,4 +1,4 @@
-module github.com/joincloud/peers-touch－go
+module github.com/joincloud/peers-touch-go
 
 go 1.14
 
