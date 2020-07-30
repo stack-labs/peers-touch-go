@@ -2,9 +2,24 @@ package registry
 
 import (
 	"context"
-	"github.com/libp2p/go-libp2p-core/host"
+	"sync"
 	"time"
+
+	"github.com/libp2p/go-libp2p-core/host"
 )
+
+var (
+	mux             sync.Mutex
+	DefaultRegistry Registry
+
+	Registries = make(map[string]NewRegistry)
+)
+
+type NewRegistry func(...Option) Registry
+
+func init() {
+	DefaultRegistry = Registries["mdns"]()
+}
 
 type Registry interface {
 	Register(node *Node, opts ...RegisterOption) error
@@ -13,6 +28,7 @@ type Registry interface {
 	ListNodes(...NodeOption) (nodes []*Node, err error)
 	Init(...Option) error
 	Options() Options
+	String() string
 }
 
 type Option func(*Options)
@@ -20,10 +36,6 @@ type Option func(*Options)
 type RegisterOption func(*RegisterOptions)
 
 type NodeOption func(*NodeOptions)
-
-var (
-	DefaultRegistry Registry
-)
 
 func Register(node *Node, opts ...RegisterOption) error {
 	return DefaultRegistry.Register(node, opts...)

@@ -14,8 +14,9 @@ type NodeOptions struct {
 }
 
 type RegisterOptions struct {
-	TTL      time.Duration
-	Context  context.Context
-	Host     host.Host
-	Interval time.Duration
+	TTL        time.Duration
+	Context    context.Context
+	Host       host.Host
+	Interval   time.Duration
+	ServiceTag string
 }

@@ -3,9 +3,11 @@ package mdns
 import (
 	"context"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/joincloud/peers-touch－go/registry"
 	"github.com/libp2p/go-libp2p/p2p/discovery"
-	"time"
 )
 
 // DiscoveryInterval is how often we re-publish our mDNS records.
@@ -14,8 +16,18 @@ const DiscoveryInterval = time.Hour
 // DiscoveryServiceTag is used in our mDNS advertisements to discover other chat peers.
 const DiscoveryServiceTag = "pubsub-chat-example"
 
+func init() {
+	registry.Registries["mdns"] = NewRegistry
+}
+
 type mdns struct {
-	discoverMap map[string]*discovery.Service
+	discoverMap map[string]discovery.Service
+
+	mtx sync.RWMutex
+}
+
+func (m *mdns) String() string {
+	return "mdns"
 }
 
 func (m *mdns) Register(node *registry.Node, opts ...registry.RegisterOption) (err error) {
@@ -32,12 +44,20 @@ func (m *mdns) Register(node *registry.Node, opts ...registry.RegisterOption) (e
 		return fmt.Errorf("Host is nil ")
 	}
 
-	disc, err := discovery.NewMdnsService(options.Context, options.Host, DiscoveryInterval, DiscoveryServiceTag)
+	if options.Interval == 0 {
+		options.Interval = DiscoveryInterval
+	}
+
+	if options.ServiceTag == "" {
+		options.ServiceTag = DiscoveryServiceTag
+	}
+
+	disc, err := discovery.NewMdnsService(options.Context, options.Host, options.Interval, options.ServiceTag)
 	if err != nil {
 		return fmt.Errorf("discover register error: %s", err)
 	}
 	if _, ok := m.discoverMap[node.Name]; !ok {
-		m.discoverMap[node.Name] = &disc
+		m.discoverMap[node.Name] = disc
 	}
 
 	node.Host = options.Host
@@ -69,4 +89,12 @@ func (m *mdns) Init(...registry.Option) error {
 
 func (m *mdns) Options() registry.Options {
 	panic("implement me")
+}
+
+func NewRegistry(options ...registry.Option) registry.Registry {
+	m := &mdns{
+		discoverMap: make(map[string]discovery.Service),
+	}
+
+	return m
 }
