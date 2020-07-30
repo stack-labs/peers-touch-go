@@ -5,18 +5,23 @@ import (
 	"sync"
 
 	ipfsCore "github.com/ipfs/go-ipfs/core"
-	"github.com/ipfs/go-ipfs/core/coreapi"
 	"github.com/ipfs/go-ipfs/core/node/libp2p"
-	"github.com/joincloud/peers-touch/file"
-	"github.com/joincloud/peers-touch/peer"
-	"github.com/joincloud/peers-touch/pubsub"
+	iface "github.com/ipfs/interface-go-ipfs-core"
+	"github.com/joincloud/peers-touch－go/file"
+	"github.com/joincloud/peers-touch－go/peer"
+	"github.com/joincloud/peers-touch－go/pubsub"
+	golib "github.com/libp2p/go-libp2p"
+)
+
+var (
+	DefaultAddrs = []string{"/ip4/0.0.0.0/tcp/0"}
 )
 
 type Node interface {
-	IPFS() coreapi.CoreAPI
+	IPFS() iface.CoreAPI
 	ID() peer.PeerID
 	Broker() pubsub.Broker
-	Connect(peerInfo peer.PeerInfo) error
+	Connect(peerInfo peer.PeerAddrInfo) error
 	Disconnect(multiAddr peer.PeerMultiAddr) error
 	// Touch the file#subjectID from peer#peerID
 	Touch(peerID peer.PeerID, subjectID string) (file.File, error)
@@ -25,9 +30,10 @@ type Node interface {
 
 type node struct {
 	ctx      context.Context
-	ipfs     coreapi.CoreAPI
+	ipfs     iface.CoreAPI
 	id       peer.PeerID
 	broker   pubsub.Broker
+	host     peer.Host
 	muPubSub sync.RWMutex
 	muIPFS   sync.RWMutex
 }
@@ -40,7 +46,7 @@ func (n *node) Broker() pubsub.Broker {
 	return n.broker
 }
 
-func (n *node) Connect(peerInfo peer.PeerInfo) error {
+func (n *node) Connect(peerInfo peer.PeerAddrInfo) error {
 	return n.ipfs.Swarm().Connect(n.ctx, peerInfo)
 }
 
@@ -57,27 +63,48 @@ func (n *node) Close() {
 
 }
 
-func (n *node) IPFS() coreapi.CoreAPI {
+func (n *node) IPFS() iface.CoreAPI {
 	n.muIPFS.RLock()
 	defer n.muIPFS.RUnlock()
 
 	return n.ipfs
 }
 
-func NewNode(ctx context.Context, ipfs coreapi.CoreAPI, options ...Option) (n Node, err error) {
+func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 	opts := &Options{}
 	for _, o := range options {
 		o(opts)
 	}
 
-	n = newNode(ctx, ipfs, opts)
+	if opts.Adds == nil {
+		opts.Adds = DefaultAddrs
+	}
+
+	if opts.Host == nil {
+		opts.Host, err = golib.New(ctx, golib.ListenAddrStrings(opts.Adds...))
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if opts.IPFS == nil {
+
+	}
+
+	if opts.Broker == nil {
+		opts.Broker = pubsub.NewBroker()
+	}
+
+	n = newNode(ctx, opts)
 
 	return
 }
 
-func newNode(ctx context.Context, ipfs coreapi.CoreAPI, options *Options) *node {
+func newNode(ctx context.Context, options *Options) *node {
 	n := &node{
-		ipfs: ipfs,
+		ipfs:   options.IPFS,
+		broker: options.Broker,
+		id:     options.PeerID,
 	}
 
 	return n

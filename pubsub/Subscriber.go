@@ -3,10 +3,9 @@ package pubsub
 import (
 	"context"
 	"fmt"
-
 	"github.com/ipfs/go-ipfs/core/coreapi"
 	"github.com/ipfs/interface-go-ipfs-core"
-	"github.com/joincloud/peers-touch/peer"
+	"github.com/joincloud/peers-touch－go/peer"
 	"github.com/pkg/errors"
 )
 
