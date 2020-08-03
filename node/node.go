@@ -5,6 +5,8 @@ import (
 	"sync"
 
 	ipfsCore "github.com/ipfs/go-ipfs/core"
+	"github.com/ipfs/go-ipfs/core/coreapi"
+	mock "github.com/ipfs/go-ipfs/core/mock"
 	"github.com/ipfs/go-ipfs/core/node/libp2p"
 	iface "github.com/ipfs/interface-go-ipfs-core"
 	"github.com/joincloud/peers-touch-go/file"
@@ -88,11 +90,14 @@ func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 	}
 
 	if opts.IPFS == nil {
-
+		n, _, err := newIPFSNode(ctx, mock.MockHostOption(opts.Host))
+		if opts.IPFS, err = coreapi.NewCoreAPI(n); err != nil {
+			panic(err)
+		}
 	}
 
 	if opts.Broker == nil {
-		opts.Broker = pubsub.NewBroker()
+		opts.Broker = pubsub.NewBroker(pubsub.BrokerCoreAPI(opts.IPFS))
 	}
 
 	n = newNode(ctx, opts)
