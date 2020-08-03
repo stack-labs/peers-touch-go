@@ -2,6 +2,7 @@ package pubsub
 
 import (
 	"context"
+	"encoding/json"
 	"sync"
 
 	iface "github.com/ipfs/interface-go-ipfs-core"
@@ -21,7 +22,9 @@ type Message struct {
 }
 
 func (m Message) Bytes() []byte {
-	return nil
+	// todo use codec
+	msg, _ := json.Marshal(m)
+	return msg
 }
 
 type Event interface {
