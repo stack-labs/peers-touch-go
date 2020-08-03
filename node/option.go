@@ -2,8 +2,8 @@ package node
 
 import (
 	iface "github.com/ipfs/interface-go-ipfs-core"
-	"github.com/joincloud/peers-touch－go/peer"
-	"github.com/joincloud/peers-touch－go/pubsub"
+	"github.com/joincloud/peers-touch-go/peer"
+	"github.com/joincloud/peers-touch-go/pubsub"
 )
 
 type Options struct {
