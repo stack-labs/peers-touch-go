@@ -6,13 +6,15 @@ import (
 
 	ipfsCore "github.com/ipfs/go-ipfs/core"
 	"github.com/ipfs/go-ipfs/core/coreapi"
-	mock "github.com/ipfs/go-ipfs/core/mock"
 	"github.com/ipfs/go-ipfs/core/node/libp2p"
 	iface "github.com/ipfs/interface-go-ipfs-core"
 	"github.com/joincloud/peers-touch-go/file"
 	"github.com/joincloud/peers-touch-go/peer"
 	"github.com/joincloud/peers-touch-go/pubsub"
 	golib "github.com/libp2p/go-libp2p"
+	"github.com/libp2p/go-libp2p-core/host"
+	peer2 "github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/peerstore"
 )
 
 var (
@@ -90,7 +92,9 @@ func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 	}
 
 	if opts.IPFS == nil {
-		n, _, err := newIPFSNode(ctx, mock.MockHostOption(opts.Host))
+		n, _, err := newIPFSNode(ctx, func(ctx context.Context, id peer2.ID, ps peerstore.Peerstore, options ...golib.Option) (host host.Host, err error) {
+			return opts.Host, nil
+		})
 		if opts.IPFS, err = coreapi.NewCoreAPI(n); err != nil {
 			panic(err)
 		}

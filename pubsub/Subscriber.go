@@ -76,6 +76,7 @@ func NewSubscriber(ctx context.Context, opts ...SubOption) (sub Subscriber, err 
 	}
 
 	s := &subscriber{
+		opts:       options,
 		ipfs:       coreapi.CoreAPI{},
 		ipfsPubSub: pubSubSub,
 		peerID:     id.ID(),
