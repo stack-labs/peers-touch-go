@@ -3,8 +3,10 @@ package pubsub
 import (
 	"context"
 	"fmt"
+
 	"github.com/ipfs/go-ipfs/core/coreapi"
 	"github.com/ipfs/interface-go-ipfs-core"
+	"github.com/joincloud/peers-touch-go/logger"
 	"github.com/joincloud/peers-touch-go/peer"
 	"github.com/pkg/errors"
 )
@@ -38,15 +40,17 @@ func (s *subscriber) start(ctx context.Context) {
 			continue
 		}
 
+		logger.Debugf("receive msg from %s, %s", msg.From().String(), s.peerID.String())
 		// ignore self msg
 		if msg.From() == s.peerID {
-			fmt.Printf("ignore self msg")
+			logger.Infof("ignore self msg %s", msg.From().String())
 			continue
 		}
 
 		topic := msg.Topics()[0]
+		logger.Debugf("receive msg topic %s, %s", topic, s.opts.Topic)
 		if topic != s.opts.Topic {
-			fmt.Printf("ignore topic")
+			logger.Infof("ignore topic %s", topic)
 			continue
 		}
 
