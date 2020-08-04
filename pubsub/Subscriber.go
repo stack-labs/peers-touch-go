@@ -2,6 +2,7 @@ package pubsub
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/ipfs/go-ipfs/core/coreapi"
@@ -54,7 +55,14 @@ func (s *subscriber) start(ctx context.Context) {
 			continue
 		}
 
-		evt := NewEvent(s.Topic(), msg.Data())
+		m := Message{}
+		// todo use codec
+		err = json.Unmarshal(msg.Data(), &m)
+		if err != nil {
+			logger.Errorf("err: %s, content: %s", err, string(msg.Data()))
+		}
+
+		evt := NewEvent(s.Topic(), m)
 		s.handler(evt)
 	}
 }

@@ -113,12 +113,9 @@ func NewBroker(options ...BrokerOption) Broker {
 	return b
 }
 
-func NewEvent(topic string, content []byte) Event {
+func NewEvent(topic string, m Message) Event {
 	return &event{
 		t: topic,
-		m: Message{
-			Header: nil,
-			Body:   content,
-		},
+		m: m,
 	}
 }
