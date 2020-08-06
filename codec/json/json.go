@@ -7,9 +7,17 @@ import (
 )
 
 type Options struct {
+	Name string
 }
 
 type Codec struct {
+	name string
+}
+
+func init() {
+	codec.Codecs["json"] = func(options ...codec.Option) codec.Codec {
+		return NewCodec(options...)
+	}
 }
 
 func (c *Codec) Marshal(v interface{}) ([]byte, error) {
@@ -21,7 +29,15 @@ func (c *Codec) Unmarshal(data []byte, v interface{}) error {
 }
 
 func (c *Codec) String() string {
-	return "json"
+	return c.name
+}
+
+func (c *Codec) New(options ...codec.Option) codec.Codec {
+	if options == nil {
+		return c
+	}
+
+	return NewCodec(options...)
 }
 
 func NewCodec(options ...codec.Option) codec.Codec {
@@ -29,5 +45,12 @@ func NewCodec(options ...codec.Option) codec.Codec {
 	for _, option := range options {
 		option(opts)
 	}
-	return &Codec{}
+
+	if opts.Name == "" {
+		opts.Name = "json"
+	}
+
+	return &Codec{
+		name: opts.Name,
+	}
 }

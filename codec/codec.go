@@ -1,7 +1,8 @@
 package codec
 
 var (
-	Codecs = make(map[string]Codec)
+	// todo, no Helper, more graceful
+	Codecs = make(map[string]func(opts ...Option) Codec)
 )
 
 type Codec interface {
@@ -11,6 +12,6 @@ type Codec interface {
 	String() string
 }
 
-func NewCodec(name string, opts ...Options) Codec {
-	return
+func NewCodec(name string, options ...Option) Codec {
+	return Codecs[name](options...)
 }

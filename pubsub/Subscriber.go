@@ -7,9 +7,14 @@ import (
 
 	"github.com/ipfs/go-ipfs/core/coreapi"
 	"github.com/ipfs/interface-go-ipfs-core"
+	"github.com/joincloud/peers-touch-go/codec"
 	"github.com/joincloud/peers-touch-go/logger"
 	"github.com/joincloud/peers-touch-go/peer"
 	"github.com/pkg/errors"
+)
+
+var (
+	DefaultCodecName = "json"
 )
 
 type Subscriber interface {
@@ -23,6 +28,7 @@ type subscriber struct {
 	ipfsPubSub iface.PubSubSubscription
 	peerID     peer.PeerID
 	handler    Handler
+	codec      codec.Codec
 }
 
 func (s *subscriber) Topic() string {
@@ -77,6 +83,10 @@ func NewSubscriber(ctx context.Context, opts ...SubOption) (sub Subscriber, err 
 		return nil, fmt.Errorf("wrong empty topic")
 	}
 
+	if options.codec == nil {
+		options.codec = codec.Codecs[DefaultCodecName]()
+	}
+
 	pubSubSub, err := options.coreAPI.PubSub().Subscribe(ctx, options.Topic)
 	if err != nil {
 		return nil, err
@@ -92,6 +102,7 @@ func NewSubscriber(ctx context.Context, opts ...SubOption) (sub Subscriber, err 
 		ipfs:       coreapi.CoreAPI{},
 		ipfsPubSub: pubSubSub,
 		peerID:     id.ID(),
+		codec:      options.codec,
 		handler:    options.Handler,
 	}
 

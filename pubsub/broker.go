@@ -3,6 +3,7 @@ package pubsub
 import (
 	"context"
 	"encoding/json"
+	"github.com/joincloud/peers-touch-go/codec"
 	"sync"
 
 	iface "github.com/ipfs/interface-go-ipfs-core"
@@ -10,7 +11,7 @@ import (
 )
 
 type Broker interface {
-	Pub(ctx context.Context, event Event) error
+	Pub(ctx context.Context, event Topic) error
 	Sub(ctx context.Context, topic string, handler Handler) (Subscriber, error)
 	Unsub(topic string) error
 	Close() error
@@ -27,24 +28,30 @@ func (m Message) Bytes() []byte {
 	return msg
 }
 
-type Event interface {
-	Topic() string
+type Topic interface {
+	Name() string
 	Message() Message
+	Codec() codec.Codec
 }
 
-type Handler func(event Event)
+type Handler func(topic Topic)
 
-type event struct {
-	t string
+type topic struct {
+	n string
 	m Message
+	c codec.Codec
 }
 
-func (e *event) Topic() string {
-	return e.t
+func (t *topic) Name() string {
+	return t.n
 }
 
-func (e *event) Message() Message {
-	return e.m
+func (t *topic) Message() Message {
+	return t.m
+}
+
+func (t *topic) Codec() codec.Codec {
+	return t.c
 }
 
 type broker struct {
@@ -54,8 +61,8 @@ type broker struct {
 	exit        chan chan error
 }
 
-func (b *broker) Pub(ctx context.Context, event Event) (err error) {
-	err = b.coreAPI.PubSub().Publish(ctx, event.Topic(), event.Message().Bytes())
+func (b *broker) Pub(ctx context.Context, event Topic) (err error) {
+	err = b.coreAPI.PubSub().Publish(ctx, event.Name(), event.Message().Bytes())
 	if err != nil {
 		return errors.Wrap(err, "unable to publish data on pubsub")
 	}
@@ -113,9 +120,9 @@ func NewBroker(options ...BrokerOption) Broker {
 	return b
 }
 
-func NewEvent(topic string, m Message) Event {
-	return &event{
-		t: topic,
+func NewEvent(name string, m Message) Topic {
+	return &topic{
+		n: name,
 		m: m,
 	}
 }
