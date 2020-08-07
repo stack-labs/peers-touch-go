@@ -2,11 +2,10 @@ package pubsub
 
 import (
 	"context"
-	"encoding/json"
-	"github.com/joincloud/peers-touch-go/codec"
 	"sync"
 
 	iface "github.com/ipfs/interface-go-ipfs-core"
+	"github.com/joincloud/peers-touch-go/codec"
 	"github.com/pkg/errors"
 )
 
@@ -22,16 +21,10 @@ type Message struct {
 	Body   []byte
 }
 
-func (m Message) Bytes() []byte {
-	// todo use codec
-	msg, _ := json.Marshal(m)
-	return msg
-}
-
 type Topic interface {
 	Name() string
 	Message() Message
-	Codec() codec.Codec
+	Bytes() ([]byte, error)
 }
 
 type Handler func(topic Topic)
@@ -50,8 +43,8 @@ func (t *topic) Message() Message {
 	return t.m
 }
 
-func (t *topic) Codec() codec.Codec {
-	return t.c
+func (t *topic) Bytes() ([]byte, error) {
+	return t.c.Marshal(t.m)
 }
 
 type broker struct {
@@ -61,8 +54,13 @@ type broker struct {
 	exit        chan chan error
 }
 
-func (b *broker) Pub(ctx context.Context, event Topic) (err error) {
-	err = b.coreAPI.PubSub().Publish(ctx, event.Name(), event.Message().Bytes())
+func (b *broker) Pub(ctx context.Context, topic Topic) (err error) {
+	bytes, err := topic.Bytes()
+	if err != nil {
+		return errors.Wrap(err, "unable to marshal message")
+	}
+
+	err = b.coreAPI.PubSub().Publish(ctx, topic.Name(), bytes)
 	if err != nil {
 		return errors.Wrap(err, "unable to publish data on pubsub")
 	}
