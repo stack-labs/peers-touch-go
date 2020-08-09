@@ -118,9 +118,10 @@ func NewBroker(options ...BrokerOption) Broker {
 	return b
 }
 
-func NewEvent(name string, m Message) Topic {
+func NewTopic(name string, m Message, codec codec.Codec) Topic {
 	return &topic{
 		n: name,
 		m: m,
+		c: codec,
 	}
 }
