@@ -10,8 +10,10 @@ import (
 )
 
 type Broker interface {
-	Pub(ctx context.Context, event Topic) error
+	Init(...BrokerOption) error
+	Pub(ctx context.Context, event Event) error
 	Sub(ctx context.Context, topic string, handler Handler) (Subscriber, error)
+	Codec() codec.Codec
 	Unsub(topic string) error
 	Close() error
 }
@@ -21,46 +23,49 @@ type Message struct {
 	Body   []byte
 }
 
-type Topic interface {
+type Event interface {
 	Name() string
 	Message() Message
-	Bytes() ([]byte, error)
 }
 
-type Handler func(topic Topic)
+type Handler func(topic Event)
 
-type topic struct {
+type event struct {
 	n string
 	m Message
-	c codec.Codec
 }
 
-func (t *topic) Name() string {
-	return t.n
+func (e *event) Name() string {
+	return e.n
 }
 
-func (t *topic) Message() Message {
-	return t.m
-}
-
-func (t *topic) Bytes() ([]byte, error) {
-	return t.c.Marshal(t.m)
+func (e *event) Message() Message {
+	return e.m
 }
 
 type broker struct {
+	codec       codec.Codec
 	coreAPI     iface.CoreAPI
 	subscribers map[string]Subscriber
 	muMux       sync.RWMutex
 	exit        chan chan error
 }
 
-func (b *broker) Pub(ctx context.Context, topic Topic) (err error) {
-	bytes, err := topic.Bytes()
+func (b *broker) Init(...BrokerOption) error {
+	panic("implement me")
+}
+
+func (b *broker) Codec() codec.Codec {
+	return b.codec
+}
+
+func (b *broker) Pub(ctx context.Context, event Event) (err error) {
+	bytes, err := b.codec.Marshal(event)
 	if err != nil {
 		return errors.Wrap(err, "unable to marshal message")
 	}
 
-	err = b.coreAPI.PubSub().Publish(ctx, topic.Name(), bytes)
+	err = b.coreAPI.PubSub().Publish(ctx, event.Name(), bytes)
 	if err != nil {
 		return errors.Wrap(err, "unable to publish data on pubsub")
 	}
@@ -109,7 +114,12 @@ func NewBroker(options ...BrokerOption) Broker {
 		option(bo)
 	}
 
+	if bo.codec == nil {
+		bo.codec = codec.Codecs["json"]()
+	}
+
 	b := &broker{
+		codec:       bo.codec,
 		coreAPI:     bo.coreAPI,
 		subscribers: map[string]Subscriber{},
 		exit:        make(chan chan error),
@@ -118,10 +128,9 @@ func NewBroker(options ...BrokerOption) Broker {
 	return b
 }
 
-func NewTopic(name string, m Message, codec codec.Codec) Topic {
-	return &topic{
+func NewEvent(name string, m Message) Event {
+	return &event{
 		n: name,
 		m: m,
-		c: codec,
 	}
 }

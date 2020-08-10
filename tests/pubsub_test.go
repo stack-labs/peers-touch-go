@@ -23,7 +23,7 @@ func TestBrokerSub(t *testing.T) {
 			c.So(b, ShouldNotBeNil)
 
 			Convey("Create Sub", FailureHalts, func(c C) {
-				sub, err := b.Sub(ctx, "topic-test", func(event pubsub.Topic) {
+				sub, err := b.Sub(ctx, "topic-test", func(event pubsub.Event) {
 					c.Printf("receive evt: %s-%s", event.Topic(), event.Message())
 				})
 

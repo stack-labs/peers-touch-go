@@ -7,6 +7,7 @@ import (
 
 type BrokerOptions struct {
 	coreAPI iface.CoreAPI
+	codec   codec.Codec
 }
 
 type BrokerOption func(o *BrokerOptions)
@@ -14,6 +15,12 @@ type BrokerOption func(o *BrokerOptions)
 func BrokerCoreAPI(coreAPI iface.CoreAPI) BrokerOption {
 	return func(o *BrokerOptions) {
 		o.coreAPI = coreAPI
+	}
+}
+
+func BrokerCodec(codec codec.Codec) BrokerOption {
+	return func(o *BrokerOptions) {
+		o.codec = codec
 	}
 }
 

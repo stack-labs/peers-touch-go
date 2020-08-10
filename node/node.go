@@ -22,6 +22,7 @@ var (
 )
 
 type Node interface {
+	Init(...Option) error
 	IPFS() iface.CoreAPI
 	ID() peer.PeerID
 	Broker() pubsub.Broker
@@ -40,6 +41,10 @@ type node struct {
 	host     peer.Host
 	muPubSub sync.RWMutex
 	muIPFS   sync.RWMutex
+}
+
+func (n *node) Init(...Option) error {
+	panic("implement me")
 }
 
 func (n *node) Touch(peerID peer.PeerID, subjectID string) (file.File, error) {
@@ -114,6 +119,12 @@ func newNode(ctx context.Context, options *Options) *node {
 		ipfs:   options.IPFS,
 		broker: options.Broker,
 		id:     options.PeerID,
+	}
+
+	// init
+	err := n.Init()
+	if err != nil {
+
 	}
 
 	return n
