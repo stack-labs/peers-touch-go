@@ -20,7 +20,7 @@ type Broker interface {
 
 type Message struct {
 	Header map[string]string
-	Body   []byte
+	Body   interface{}
 }
 
 type Event interface {
@@ -31,16 +31,16 @@ type Event interface {
 type Handler func(topic Event)
 
 type event struct {
-	n string
-	m Message
+	N string
+	M Message
 }
 
 func (e *event) Name() string {
-	return e.n
+	return e.N
 }
 
 func (e *event) Message() Message {
-	return e.m
+	return e.M
 }
 
 type broker struct {
@@ -52,7 +52,7 @@ type broker struct {
 }
 
 func (b *broker) Init(...BrokerOption) error {
-	panic("implement me")
+	return nil
 }
 
 func (b *broker) Codec() codec.Codec {
@@ -130,7 +130,7 @@ func NewBroker(options ...BrokerOption) Broker {
 
 func NewEvent(name string, m Message) Event {
 	return &event{
-		n: name,
-		m: m,
+		N: name,
+		M: m,
 	}
 }

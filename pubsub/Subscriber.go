@@ -60,14 +60,13 @@ func (s *subscriber) start(ctx context.Context) {
 			continue
 		}
 
-		m := Message{}
-		err = s.codec.Unmarshal(msg.Data(), &m)
+		evt := event{}
+		err = s.codec.Unmarshal(msg.Data(), &evt)
 		if err != nil {
 			logger.Errorf("err: %s, content: %s", err, string(msg.Data()))
 		}
 
-		evt := NewEvent(s.Topic(), m)
-		s.handler(evt)
+		s.handler(&evt)
 	}
 }
 

@@ -43,8 +43,8 @@ type node struct {
 	muIPFS   sync.RWMutex
 }
 
-func (n *node) Init(...Option) error {
-	panic("implement me")
+func (n *node) Init(options ...Option) error {
+	return nil
 }
 
 func (n *node) Touch(peerID peer.PeerID, subjectID string) (file.File, error) {
@@ -107,14 +107,18 @@ func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 
 	if opts.Broker == nil {
 		opts.Broker = pubsub.NewBroker(pubsub.BrokerCoreAPI(opts.IPFS))
+		err = opts.Broker.Init()
+		if err != nil {
+
+		}
 	}
 
-	n = newNode(ctx, opts)
+	n, err = newNode(ctx, opts)
 
 	return
 }
 
-func newNode(ctx context.Context, options *Options) *node {
+func newNode(ctx context.Context, options *Options) (*node, error) {
 	n := &node{
 		ipfs:   options.IPFS,
 		broker: options.Broker,
@@ -124,10 +128,10 @@ func newNode(ctx context.Context, options *Options) *node {
 	// init
 	err := n.Init()
 	if err != nil {
-
+		return nil, err
 	}
 
-	return n
+	return n, nil
 }
 
 type cleanFunc func()
