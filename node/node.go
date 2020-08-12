@@ -5,12 +5,16 @@ import (
 	"sync"
 
 	ipfsCore "github.com/ipfs/go-ipfs/core"
+	"github.com/ipfs/go-ipfs/core/coreapi"
 	"github.com/ipfs/go-ipfs/core/node/libp2p"
 	iface "github.com/ipfs/interface-go-ipfs-core"
-	"github.com/joincloud/peers-touch－go/file"
-	"github.com/joincloud/peers-touch－go/peer"
-	"github.com/joincloud/peers-touch－go/pubsub"
+	"github.com/joincloud/peers-touch-go/file"
+	"github.com/joincloud/peers-touch-go/peer"
+	"github.com/joincloud/peers-touch-go/pubsub"
 	golib "github.com/libp2p/go-libp2p"
+	"github.com/libp2p/go-libp2p-core/host"
+	peer2 "github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/peerstore"
 )
 
 var (
@@ -18,6 +22,7 @@ var (
 )
 
 type Node interface {
+	Init(...Option) error
 	IPFS() iface.CoreAPI
 	ID() peer.PeerID
 	Broker() pubsub.Broker
@@ -36,6 +41,10 @@ type node struct {
 	host     peer.Host
 	muPubSub sync.RWMutex
 	muIPFS   sync.RWMutex
+}
+
+func (n *node) Init(options ...Option) error {
+	return nil
 }
 
 func (n *node) Touch(peerID peer.PeerID, subjectID string) (file.File, error) {
@@ -88,26 +97,41 @@ func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 	}
 
 	if opts.IPFS == nil {
-
+		n, _, err := newIPFSNode(ctx, func(ctx context.Context, id peer2.ID, ps peerstore.Peerstore, options ...golib.Option) (host host.Host, err error) {
+			return opts.Host, nil
+		})
+		if opts.IPFS, err = coreapi.NewCoreAPI(n); err != nil {
+			panic(err)
+		}
 	}
 
 	if opts.Broker == nil {
-		opts.Broker = pubsub.NewBroker()
+		opts.Broker = pubsub.NewBroker(pubsub.BrokerCoreAPI(opts.IPFS))
+		err = opts.Broker.Init()
+		if err != nil {
+
+		}
 	}
 
-	n = newNode(ctx, opts)
+	n, err = newNode(ctx, opts)
 
 	return
 }
 
-func newNode(ctx context.Context, options *Options) *node {
+func newNode(ctx context.Context, options *Options) (*node, error) {
 	n := &node{
 		ipfs:   options.IPFS,
 		broker: options.Broker,
 		id:     options.PeerID,
 	}
 
-	return n
+	// init
+	err := n.Init()
+	if err != nil {
+		return nil, err
+	}
+
+	return n, nil
 }
 
 type cleanFunc func()

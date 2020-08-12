@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/joincloud/peers-touch－go/registry"
+	"github.com/joincloud/peers-touch-go/registry"
 	"github.com/libp2p/go-libp2p/p2p/discovery"
 )
 

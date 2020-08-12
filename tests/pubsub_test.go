@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/joincloud/peers-touch－go/pubsub"
+	"github.com/joincloud/peers-touch-go/pubsub"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

@@ -2,6 +2,20 @@
 
 基于P2P传输协议（IPFS）的远程通信框架，提供去中心化的通信组件，支持消息订阅、发布，支持远程文件传输。
 
+![architecture](./doc/images/architecture.png)
+
+```
+--Log
+--Peer
+----Codec
+----Pubsub
+----Registry
+----Store
+----Transport
+-------------Touch
+------------------Node
+```
+
 ## 架构（设计中）
 
 部分参考Go-Micro及Orbit-db的设计

@@ -3,10 +3,17 @@ package pubsub
 import (
 	"context"
 	"fmt"
+
 	"github.com/ipfs/go-ipfs/core/coreapi"
 	"github.com/ipfs/interface-go-ipfs-core"
-	"github.com/joincloud/peers-touch－go/peer"
+	"github.com/joincloud/peers-touch-go/codec"
+	"github.com/joincloud/peers-touch-go/logger"
+	"github.com/joincloud/peers-touch-go/peer"
 	"github.com/pkg/errors"
+)
+
+var (
+	DefaultCodecName = "json"
 )
 
 type Subscriber interface {
@@ -20,6 +27,7 @@ type subscriber struct {
 	ipfsPubSub iface.PubSubSubscription
 	peerID     peer.PeerID
 	handler    Handler
+	codec      codec.Codec
 }
 
 func (s *subscriber) Topic() string {
@@ -38,20 +46,27 @@ func (s *subscriber) start(ctx context.Context) {
 			continue
 		}
 
+		logger.Debugf("receive msg from %s, %s", msg.From().String(), s.peerID.String())
 		// ignore self msg
 		if msg.From() == s.peerID {
-			fmt.Printf("ignore self msg")
+			logger.Infof("ignore self msg %s", msg.From().String())
 			continue
 		}
 
 		topic := msg.Topics()[0]
+		logger.Debugf("receive msg topic %s, %s", topic, s.opts.Topic)
 		if topic != s.opts.Topic {
-			fmt.Printf("ignore topic")
+			logger.Infof("ignore topic %s", topic)
 			continue
 		}
 
-		evt := NewEvent(s.Topic(), msg.Data())
-		s.handler(evt)
+		evt := event{}
+		err = s.codec.Unmarshal(msg.Data(), &evt)
+		if err != nil {
+			logger.Errorf("err: %s, content: %s", err, string(msg.Data()))
+		}
+
+		s.handler(&evt)
 	}
 }
 
@@ -65,6 +80,10 @@ func NewSubscriber(ctx context.Context, opts ...SubOption) (sub Subscriber, err 
 		return nil, fmt.Errorf("wrong empty topic")
 	}
 
+	if options.codec == nil {
+		options.codec = codec.Codecs[DefaultCodecName]()
+	}
+
 	pubSubSub, err := options.coreAPI.PubSub().Subscribe(ctx, options.Topic)
 	if err != nil {
 		return nil, err
@@ -76,9 +95,11 @@ func NewSubscriber(ctx context.Context, opts ...SubOption) (sub Subscriber, err 
 	}
 
 	s := &subscriber{
+		opts:       options,
 		ipfs:       coreapi.CoreAPI{},
 		ipfsPubSub: pubSubSub,
 		peerID:     id.ID(),
+		codec:      options.codec,
 		handler:    options.Handler,
 	}
 

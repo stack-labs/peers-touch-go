@@ -2,60 +2,70 @@ package pubsub
 
 import (
 	"context"
-	"encoding/json"
 	"sync"
 
 	iface "github.com/ipfs/interface-go-ipfs-core"
+	"github.com/joincloud/peers-touch-go/codec"
 	"github.com/pkg/errors"
 )
 
 type Broker interface {
+	Init(...BrokerOption) error
 	Pub(ctx context.Context, event Event) error
 	Sub(ctx context.Context, topic string, handler Handler) (Subscriber, error)
+	Codec() codec.Codec
 	Unsub(topic string) error
 	Close() error
 }
 
 type Message struct {
 	Header map[string]string
-	Body   []byte
-}
-
-func (m Message) Bytes() []byte {
-	// todo use codec
-	msg, _ := json.Marshal(m)
-	return msg
+	Body   interface{}
 }
 
 type Event interface {
-	Topic() string
+	Name() string
 	Message() Message
 }
 
-type Handler func(event Event)
+type Handler func(topic Event)
 
 type event struct {
-	t string
-	m Message
+	N string
+	M Message
 }
 
-func (e *event) Topic() string {
-	return e.t
+func (e *event) Name() string {
+	return e.N
 }
 
 func (e *event) Message() Message {
-	return e.m
+	return e.M
 }
 
 type broker struct {
+	codec       codec.Codec
 	coreAPI     iface.CoreAPI
 	subscribers map[string]Subscriber
 	muMux       sync.RWMutex
 	exit        chan chan error
 }
 
+func (b *broker) Init(...BrokerOption) error {
+	return nil
+}
+
+func (b *broker) Codec() codec.Codec {
+	return b.codec
+}
+
 func (b *broker) Pub(ctx context.Context, event Event) (err error) {
-	err = b.coreAPI.PubSub().Publish(ctx, event.Topic(), event.Message().Bytes())
+	bytes, err := b.codec.Marshal(event)
+	if err != nil {
+		return errors.Wrap(err, "unable to marshal message")
+	}
+
+	err = b.coreAPI.PubSub().Publish(ctx, event.Name(), bytes)
 	if err != nil {
 		return errors.Wrap(err, "unable to publish data on pubsub")
 	}
@@ -104,7 +114,12 @@ func NewBroker(options ...BrokerOption) Broker {
 		option(bo)
 	}
 
+	if bo.codec == nil {
+		bo.codec = codec.Codecs["json"]()
+	}
+
 	b := &broker{
+		codec:       bo.codec,
 		coreAPI:     bo.coreAPI,
 		subscribers: map[string]Subscriber{},
 		exit:        make(chan chan error),
@@ -113,12 +128,9 @@ func NewBroker(options ...BrokerOption) Broker {
 	return b
 }
 
-func NewEvent(topic string, content []byte) Event {
+func NewEvent(name string, m Message) Event {
 	return &event{
-		t: topic,
-		m: Message{
-			Header: nil,
-			Body:   content,
-		},
+		N: name,
+		M: m,
 	}
 }

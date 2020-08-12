@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/joincloud/peers-touch－go/platform"
+	"github.com/joincloud/peers-touch-go/platform"
 )
 
 var (

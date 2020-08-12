@@ -1,6 +1,6 @@
 package platform
 
-import "github.com/joincloud/peers-touch－go/registry"
+import "github.com/joincloud/peers-touch-go/registry"
 
 type Platform interface {
 	Init(opts ...InitOption) error
