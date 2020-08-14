@@ -109,7 +109,7 @@ func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 		opts.Broker = pubsub.NewBroker(pubsub.BrokerCoreAPI(opts.IPFS))
 		err = opts.Broker.Init()
 		if err != nil {
-
+			panic(err)
 		}
 	}
 
