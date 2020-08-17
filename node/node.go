@@ -89,8 +89,12 @@ func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 		opts.Adds = DefaultAddrs
 	}
 
+	if opts.HostOptions == nil {
+		opts.HostOptions = append(opts.HostOptions, golib.ListenAddrStrings(opts.Adds...), golib.NATPortMap())
+	}
+
 	if opts.Host == nil {
-		opts.Host, err = golib.New(ctx, golib.ListenAddrStrings(opts.Adds...))
+		opts.Host, err = golib.New(ctx, opts.HostOptions...)
 		if err != nil {
 			panic(err)
 		}

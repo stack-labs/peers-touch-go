@@ -4,16 +4,18 @@ import (
 	iface "github.com/ipfs/interface-go-ipfs-core"
 	"github.com/joincloud/peers-touch-go/peer"
 	"github.com/joincloud/peers-touch-go/pubsub"
+	"github.com/libp2p/go-libp2p"
 )
 
 type Options struct {
-	Adds      []string
-	Directory string
-	Host      peer.Host
-	ID        string
-	IPFS      iface.CoreAPI
-	PeerID    peer.PeerID
-	Broker    pubsub.Broker
+	Adds        []string
+	Directory   string
+	Host        peer.Host
+	ID          string
+	IPFS        iface.CoreAPI
+	PeerID      peer.PeerID
+	Broker      pubsub.Broker
+	HostOptions []HostOption
 }
 
 type Option func(options *Options)
@@ -41,3 +43,11 @@ func Broker(b pubsub.Broker) Option {
 		options.Broker = b
 	}
 }
+
+func HostOptions(hps ...HostOption) Option {
+	return func(options *Options) {
+		options.HostOptions = hps
+	}
+}
+
+type HostOption = libp2p.Option
