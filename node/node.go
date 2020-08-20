@@ -69,7 +69,6 @@ func (n *node) ID() peer.PeerID {
 
 func (n *node) Close() {
 	panic("implement me")
-
 }
 
 func (n *node) IPFS() iface.CoreAPI {
@@ -104,6 +103,10 @@ func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 		n, _, err := newIPFSNode(ctx, func(ctx context.Context, id peer2.ID, ps peerstore.Peerstore, options ...golib.Option) (host host.Host, err error) {
 			return opts.Host, nil
 		})
+		if err != nil {
+			panic(err)
+		}
+
 		if opts.IPFS, err = coreapi.NewCoreAPI(n); err != nil {
 			panic(err)
 		}
