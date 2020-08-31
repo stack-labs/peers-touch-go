@@ -91,9 +91,9 @@ type Options interface {
 type SubOptions map[string]Options
 
 type AbstractOptions struct {
-	Options
-	mux sync.Mutex
-	SubOptions
+	Options    `json:"options,omitempty"`
+	mux        sync.Mutex
+	SubOptions `json:"subOptions,omitempty"`
 }
 
 func (a *AbstractOptions) AddSub(options Options) {
@@ -107,7 +107,7 @@ func (a *AbstractOptions) AddSub(options Options) {
 	a.SubOptions[options.Path()] = options
 }
 
-func (a *AbstractOptions) Subs() []Options {
+func (a *AbstractOptions) subs() []Options {
 	v := make([]Options, 0, len(a.SubOptions))
 
 	for _, value := range a.SubOptions {
@@ -124,8 +124,4 @@ func Register(options ...Options) {
 	for _, option := range options {
 		configs.valuesMap[option.Path()] = option
 	}
-}
-
-func parse() {
-
 }
