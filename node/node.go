@@ -31,9 +31,11 @@ type Node interface {
 	// Touch the file#subjectID from peer#peerID
 	Touch(peerID peer.PeerID, subjectID string) (file.File, error)
 	Close()
+	Options() Options
 }
 
 type node struct {
+	options  Options
 	ctx      context.Context
 	ipfs     iface.CoreAPI
 	id       peer.PeerID
@@ -53,6 +55,10 @@ func (n *node) Touch(peerID peer.PeerID, subjectID string) (file.File, error) {
 
 func (n *node) Broker() pubsub.Broker {
 	return n.broker
+}
+
+func (n *node) Options() Options {
+	return n.options
 }
 
 func (n *node) Connect(peerInfo peer.PeerAddrInfo) error {

@@ -7,6 +7,16 @@ import (
 	"github.com/libp2p/go-libp2p"
 )
 
+const (
+	TypeEnd Type = iota + 1
+	TypeRegistry
+	TypeRelaying
+)
+
+const (
+	TypeDefault = TypeEnd
+)
+
 type Options struct {
 	Adds        []string
 	Directory   string
@@ -16,7 +26,10 @@ type Options struct {
 	PeerID      peer.PeerID
 	Broker      pubsub.Broker
 	HostOptions []HostOption
+	Type        Type
 }
+
+type Type int
 
 type Option func(options *Options)
 
@@ -47,6 +60,12 @@ func Broker(b pubsub.Broker) Option {
 func HostOptions(hps ...HostOption) Option {
 	return func(options *Options) {
 		options.HostOptions = hps
+	}
+}
+
+func Typ(typ Type) Option {
+	return func(options *Options) {
+		options.Type = typ
 	}
 }
 
