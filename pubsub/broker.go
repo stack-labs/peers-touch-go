@@ -2,6 +2,7 @@ package pubsub
 
 import (
 	"context"
+	"github.com/joincloud/peers-touch-go/logger"
 	"sync"
 
 	iface "github.com/ipfs/interface-go-ipfs-core"
@@ -64,7 +65,11 @@ func (b *broker) Pub(ctx context.Context, event Event) (err error) {
 	if err != nil {
 		return errors.Wrap(err, "unable to marshal message")
 	}
-
+	id, err := b.coreAPI.Key().Self(ctx)
+	if err != nil {
+		panic(err)
+	}
+	logger.Debugf("pub id: %s", id.ID())
 	err = b.coreAPI.PubSub().Publish(ctx, event.Name(), bytes)
 	if err != nil {
 		return errors.Wrap(err, "unable to publish data on pubsub")

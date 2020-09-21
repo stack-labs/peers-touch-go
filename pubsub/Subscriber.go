@@ -94,6 +94,8 @@ func NewSubscriber(ctx context.Context, opts ...SubOption) (sub Subscriber, err 
 		return nil, errors.Wrap(err, "unable to get id for user")
 	}
 
+	logger.Infof("sub id: %s", id.ID().String())
+
 	s := &subscriber{
 		opts:       options,
 		ipfs:       coreapi.CoreAPI{},

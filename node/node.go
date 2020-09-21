@@ -2,6 +2,7 @@ package node
 
 import (
 	"context"
+	"github.com/joincloud/peers-touch-go/logger"
 	"sync"
 
 	ipfsCore "github.com/ipfs/go-ipfs/core"
@@ -107,6 +108,7 @@ func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 
 	if opts.IPFS == nil {
 		n, _, err := newIPFSNode(ctx, func(ctx context.Context, id peer2.ID, ps peerstore.Peerstore, options ...golib.Option) (host host.Host, err error) {
+			logger.Debugf("peer2Id is %s", id.String())
 			return opts.Host, nil
 		})
 		if err != nil {
@@ -124,6 +126,16 @@ func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 		if err != nil {
 			panic(err)
 		}
+	}
+
+	if len(opts.ID) == 0 {
+		k, err := opts.IPFS.Key().Self(ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		opts.PeerID = k.ID()
+		opts.ID = k.ID().String()
 	}
 
 	n, err = newNode(ctx, opts)
