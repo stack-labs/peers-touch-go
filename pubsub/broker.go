@@ -69,6 +69,7 @@ func (b *broker) Pub(ctx context.Context, event Event) (err error) {
 	if err != nil {
 		panic(err)
 	}
+
 	logger.Debugf("pub id: %s", id.ID())
 	err = b.coreAPI.PubSub().Publish(ctx, event.Name(), bytes)
 	if err != nil {

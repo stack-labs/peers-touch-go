@@ -2,6 +2,14 @@ module github.com/joincloud/peers-touch-go
 
 go 1.14
 
+replace (
+    // github.com/ipfs/go-ipfs v0.6.0 => ../go-ipfs
+   //  github.com/libp2p/go-libp2p-pubsub v0.3.1 => ../go-libp2p-pubsub
+   //  github.com/libp2p/go-libp2p-core v0.5.7 => ../go-libp2p-core
+    // github.com/libp2p/go-libp2p v0.9.6 => ../go-libp2p
+    // github.com/ipfs/go-ipfs v0.6.0 => ../go-ipfs
+)
+
 require (
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/google/uuid v1.1.2 // indirect
