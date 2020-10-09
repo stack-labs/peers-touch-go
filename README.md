@@ -30,7 +30,7 @@ Inspired by Go-Micro and Orbit-db.
 
 ### Node
 
-Node is the smallest indivisible unit for exchanging data in Peers. It includes `Transport`, `Broker`, `Store`, `Registry` for [todo] `Config`, `Logger` [todo]
+Node is the smallest indivisible unit for exchanging data in Peers. It includes `Transport`, `Broker`, `Store`, `Registry` for the outside and `Config`, `Logger` for the inside.
 
 # 中文
 
