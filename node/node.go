@@ -25,7 +25,6 @@ var (
 type Node interface {
 	Init(...Option) error
 	IPFS() iface.CoreAPI
-	ID() peer.PeerID
 	Broker() pubsub.Broker
 	Connect(peerInfo peer.PeerAddrInfo) error
 	Disconnect(multiAddr peer.PeerMultiAddr) error
@@ -39,7 +38,6 @@ type node struct {
 	options  Options
 	ctx      context.Context
 	ipfs     iface.CoreAPI
-	id       peer.PeerID
 	broker   pubsub.Broker
 	host     peer.Host
 	muPubSub sync.RWMutex
@@ -68,10 +66,6 @@ func (n *node) Connect(peerInfo peer.PeerAddrInfo) error {
 
 func (n *node) Disconnect(multiAddr peer.PeerMultiAddr) error {
 	return n.ipfs.Swarm().Disconnect(n.ctx, multiAddr)
-}
-
-func (n *node) ID() peer.PeerID {
-	return n.id
 }
 
 func (n *node) Close() {
@@ -126,16 +120,6 @@ func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 		if err != nil {
 			panic(err)
 		}
-	}
-
-	if len(opts.ID) == 0 {
-		k, err := opts.IPFS.Key().Self(ctx)
-		if err != nil {
-			panic(err)
-		}
-
-		opts.PeerID = k.ID()
-		opts.ID = k.ID().String()
 	}
 
 	n, err = newNode(ctx, opts)
