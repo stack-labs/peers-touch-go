@@ -34,7 +34,7 @@ Node is the smallest indivisible unit for exchanging data in peers-net. It inclu
 
 See architecture as below:
 
-[todo]
+![image](./doc/images/node_frame.png)
 
 #### Types of Node
 
@@ -51,6 +51,10 @@ Types can be init at one node which means a node could have tree types. Those ty
 We have two top communications functions, pub/sub and transport files. Except Pub/Sub Event msg, every thing transported in the network is file. eg Blog page file, image file, short post like Twitter.
 
 Files should be stored in node if they don't shared as public, but if people like some files to be public or share them with some extra people, the node will help them to make the file as BitTorrent or Magnet.
+
+Node communication looks like:
+
+![image](./doc/images/node_communication.png)
 
 # 中文
 

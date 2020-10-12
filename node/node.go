@@ -2,7 +2,6 @@ package node
 
 import (
 	"context"
-	"github.com/joincloud/peers-touch-go/logger"
 	"sync"
 
 	ipfsCore "github.com/ipfs/go-ipfs/core"
@@ -10,6 +9,7 @@ import (
 	"github.com/ipfs/go-ipfs/core/node/libp2p"
 	iface "github.com/ipfs/interface-go-ipfs-core"
 	"github.com/joincloud/peers-touch-go/file"
+	"github.com/joincloud/peers-touch-go/logger"
 	"github.com/joincloud/peers-touch-go/peer"
 	"github.com/joincloud/peers-touch-go/pubsub"
 	golib "github.com/libp2p/go-libp2p"
