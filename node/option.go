@@ -8,12 +8,16 @@ import (
 )
 
 const (
-	TypeEnd Type = iota + 1
-	TypeRegistry
+	TypeEnd      = 1
+	TypeRegistry = iota * 2
 	TypeRelaying
 )
 
 const (
+	TypeAll = TypeEnd + TypeRegistry + TypeRelaying
+)
+
+var (
 	TypeDefault = TypeEnd
 )
 
