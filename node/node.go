@@ -35,7 +35,7 @@ type Node interface {
 }
 
 type node struct {
-	options  Options
+	options  *Options
 	ctx      context.Context
 	ipfs     iface.CoreAPI
 	broker   pubsub.Broker
@@ -57,7 +57,7 @@ func (n *node) Broker() pubsub.Broker {
 }
 
 func (n *node) Options() Options {
-	return n.options
+	return *n.options
 }
 
 func (n *node) Connect(peerInfo peer.PeerAddrInfo) error {
@@ -129,9 +129,9 @@ func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 
 func newNode(ctx context.Context, options *Options) (*node, error) {
 	n := &node{
-		ipfs:   options.IPFS,
-		broker: options.Broker,
-		id:     options.PeerID,
+		ipfs:    options.IPFS,
+		broker:  options.Broker,
+		options: options,
 	}
 
 	// init
