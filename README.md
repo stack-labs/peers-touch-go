@@ -1,6 +1,6 @@
 # Peers-Touch-Go
 
-P2P communication lib in Go and based on IPFS. It supports Sub/Pub msg and file.   
+Edge social network communication dev framework in Go and based on IPFS. It supports Sub/Pub msg and file.   
 
 Why we create this?
 
@@ -58,7 +58,9 @@ Node communication looks like:
 
 # 中文
 
-基于P2P传输协议（IPFS）的远程通信框架，提供去中心化的通信组件，支持消息订阅、发布，支持远程文件传输。
+边缘社交网络通信开发框架，基于P2P传输协议（IPFS）的远程通信框架，提供去中心化的通信组件，支持消息订阅、发布，支持远程文件传输。
+
+![image](./doc/images/network-framework.png)
 
 ### Node 类型
 
