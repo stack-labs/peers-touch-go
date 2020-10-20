@@ -1,6 +1,6 @@
 # Peers-Touch-Go
 
-P2P communication lib in Go and based on IPFS. It supports Sub/Pub msg and file.   
+Edge social network communication dev framework in Go and based on IPFS. It supports Sub/Pub msg and file.   
 
 Why we create this?
 
@@ -34,7 +34,7 @@ Node is the smallest indivisible unit for exchanging data in peers-net. It inclu
 
 See architecture as below:
 
-[todo]
+![image](./doc/images/node_frame.png)
 
 #### Types of Node
 
@@ -52,9 +52,15 @@ We have two top communications functions, pub/sub and transport files. Except Pu
 
 Files should be stored in node if they don't shared as public, but if people like some files to be public or share them with some extra people, the node will help them to make the file as BitTorrent or Magnet.
 
+Node communication looks like:
+
+![image](./doc/images/node_communication.png)
+
 # 中文
 
-基于P2P传输协议（IPFS）的远程通信框架，提供去中心化的通信组件，支持消息订阅、发布，支持远程文件传输。
+边缘社交网络通信开发框架，基于P2P传输协议（IPFS）的远程通信框架，提供去中心化的通信组件，支持消息订阅、发布，支持远程文件传输。
+
+![image](./doc/images/network-framework.png)
 
 ### Node 类型
 
