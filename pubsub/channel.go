@@ -6,7 +6,7 @@ import (
 
 	log "github.com/joincloud/peers-touch-go/logger"
 	"github.com/joincloud/peers-touch-go/peer"
-	pubsub "github.com/libp2p/go-libp2p-pubsub"
+	"github.com/libp2p/go-libp2p-pubsub"
 )
 
 var (
@@ -15,7 +15,7 @@ var (
 
 type Channel struct {
 	Messages chan *Message
-	Name     string
+	name     string
 	ctx      context.Context
 	ps       *pubsub.PubSub
 	topic    *pubsub.Topic
@@ -29,7 +29,7 @@ func (ch *Channel) Ctx() context.Context {
 }
 
 func (ch *Channel) Name() string {
-	return ch.Name
+	return ch.name
 }
 
 func JoinChannel(ctx context.Context, ps *pubsub.PubSub, peerID peer.PeerID, nickname string, channelName string) (ch *Channel, err error) {
@@ -55,7 +55,7 @@ func JoinChannel(ctx context.Context, ps *pubsub.PubSub, peerID peer.PeerID, nic
 		topic:  topic,
 		sub:    sub,
 		peerID: peerID,
-		Name:   channelName,
+		name:   channelName,
 		// todo bufSize option
 		Messages: make(chan *Message, DefaultChatMsgBufSize),
 	}
@@ -89,5 +89,5 @@ func (ch *Channel) listen() {
 }
 
 func (ch *Channel) ListPeers() []peer.PeerID {
-	return ch.ps.ListPeers(ch.Name)
+	return ch.ps.ListPeers(ch.name)
 }
