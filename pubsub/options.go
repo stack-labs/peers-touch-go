@@ -70,7 +70,6 @@ type ChannelOptions struct {
 	Topic  string
 	Ctx    context.Context
 	Pubsub *pubsub.PubSub
-	Sub    *pubsub.Subscription
 	PeerID peer.PeerID
 	// todo metadata struct
 	Metadata map[string]string
@@ -108,14 +107,14 @@ func ChannelMetadata(metadata map[string]string) ChannelOption {
 	}
 }
 
-func ChannelSub(sub *pubsub.Subscription) ChannelOption {
-	return func(o *ChannelOptions) {
-		o.Sub = sub
-	}
-}
-
 func ChannelPubsub(pubsub *pubsub.PubSub) ChannelOption {
 	return func(o *ChannelOptions) {
 		o.Pubsub = pubsub
 	}
 }
+
+type PushOptions struct {
+	// todo options
+}
+
+type PushOption func(o *PushOptions)

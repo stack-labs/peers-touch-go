@@ -32,14 +32,25 @@ func (ch *Channel) Name() string {
 	return ch.name
 }
 
-func JoinChannel(ctx context.Context, ps *pubsub.PubSub, peerID peer.PeerID, nickname string, channelName string) (ch *Channel, err error) {
+func (ch *Channel) Metadata() map[string]string {
+	return ch.metadata
+}
+
+func JoinChannel(ctx context.Context, opts ...ChannelOption) (ch *Channel, err error) {
 	defer func() {
 		if err != nil {
 			log.Errorf("join channel error: %s", err)
 		}
 	}()
 
-	topic, err := ps.Join(channelName)
+	options := &ChannelOptions{}
+	for _, opt := range opts {
+		opt(options)
+	}
+
+	// todo check options
+
+	topic, err := options.Pubsub.Join(options.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -51,11 +62,11 @@ func JoinChannel(ctx context.Context, ps *pubsub.PubSub, peerID peer.PeerID, nic
 
 	ch = &Channel{
 		ctx:    ctx,
-		ps:     ps,
+		ps:     options.Pubsub,
 		topic:  topic,
 		sub:    sub,
-		peerID: peerID,
-		name:   channelName,
+		peerID: options.PeerID,
+		name:   options.Name,
 		// todo bufSize option
 		Messages: make(chan *Message, DefaultChatMsgBufSize),
 	}
@@ -90,4 +101,22 @@ func (ch *Channel) listen() {
 
 func (ch *Channel) ListPeers() []peer.PeerID {
 	return ch.ps.ListPeers(ch.name)
+}
+
+func (ch *Channel) Publish(msg string) error {
+	m := Message{
+		Body: msg,
+		Header: map[string]string{
+			// todo, more header option
+			"content-type": "application/txt",
+			"from":         ch.peerID.Pretty(),
+		},
+	}
+
+	// todo, use codec option
+	bytes, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
+	return ch.topic.Publish(ch.ctx, bytes)
 }
