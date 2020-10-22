@@ -1,8 +1,12 @@
 package pubsub
 
 import (
+	"context"
+
 	iface "github.com/ipfs/interface-go-ipfs-core"
 	"github.com/joincloud/peers-touch-go/codec"
+	"github.com/joincloud/peers-touch-go/peer"
+	"github.com/libp2p/go-libp2p-pubsub"
 )
 
 type BrokerOptions struct {
@@ -58,5 +62,60 @@ func SubHandler(handler Handler) SubOption {
 func SubCodec(codec codec.Codec) SubOption {
 	return func(o *SubOptions) {
 		o.codec = codec
+	}
+}
+
+type ChannelOptions struct {
+	Name   string
+	Topic  string
+	Ctx    context.Context
+	Pubsub *pubsub.PubSub
+	Sub    *pubsub.Subscription
+	PeerID peer.PeerID
+	// todo metadata struct
+	Metadata map[string]string
+}
+
+type ChannelOption func(o *ChannelOptions)
+
+func ChannelName(name string) ChannelOption {
+	return func(o *ChannelOptions) {
+		o.Name = name
+	}
+}
+
+func ChannelCtx(ctx context.Context) ChannelOption {
+	return func(o *ChannelOptions) {
+		o.Ctx = ctx
+	}
+}
+
+func ChannelTopic(topic string) ChannelOption {
+	return func(o *ChannelOptions) {
+		o.Topic = topic
+	}
+}
+
+func ChannelPeerID(peerID peer.PeerID) ChannelOption {
+	return func(o *ChannelOptions) {
+		o.PeerID = peerID
+	}
+}
+
+func ChannelMetadata(metadata map[string]string) ChannelOption {
+	return func(o *ChannelOptions) {
+		o.Metadata = metadata
+	}
+}
+
+func ChannelSub(sub *pubsub.Subscription) ChannelOption {
+	return func(o *ChannelOptions) {
+		o.Sub = sub
+	}
+}
+
+func ChannelPubsub(pubsub *pubsub.PubSub) ChannelOption {
+	return func(o *ChannelOptions) {
+		o.Pubsub = pubsub
 	}
 }
