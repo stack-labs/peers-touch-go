@@ -1,8 +1,8 @@
 package pubsub
 
 import (
+	"bufio"
 	"context"
-
 	iface "github.com/ipfs/interface-go-ipfs-core"
 	"github.com/joincloud/peers-touch-go/codec"
 	"github.com/joincloud/peers-touch-go/peer"
@@ -12,6 +12,7 @@ import (
 type BrokerOptions struct {
 	coreAPI iface.CoreAPI
 	codec   codec.Codec
+	host    peer.Host
 }
 
 type BrokerOption func(o *BrokerOptions)
@@ -25,6 +26,12 @@ func BrokerCoreAPI(coreAPI iface.CoreAPI) BrokerOption {
 func BrokerCodec(codec codec.Codec) BrokerOption {
 	return func(o *BrokerOptions) {
 		o.codec = codec
+	}
+}
+
+func BrokerHost(host peer.Host) BrokerOption {
+	return func(o *BrokerOptions) {
+		o.host = host
 	}
 }
 
@@ -125,3 +132,30 @@ type PushOptions struct {
 }
 
 type PushOption func(o *PushOptions)
+
+type TouchOptions struct {
+	// multiaddr like /ip4/0.0.0.0/tcp/8988
+	DestAddr string
+	Writer   func(rw *bufio.ReadWriter)
+	Reader   func(rw *bufio.ReadWriter)
+}
+
+type TouchOption func(o *TouchOptions)
+
+func TouchAddr(addr string) TouchOption {
+	return func(o *TouchOptions) {
+		o.DestAddr = addr
+	}
+}
+
+func TouchReader(reader func(rw *bufio.ReadWriter)) TouchOption {
+	return func(o *TouchOptions) {
+		o.Reader = reader
+	}
+}
+
+func TouchWriter(writer func(rw *bufio.ReadWriter)) TouchOption {
+	return func(o *TouchOptions) {
+		o.Writer = writer
+	}
+}
