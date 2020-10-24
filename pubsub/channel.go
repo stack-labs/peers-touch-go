@@ -2,7 +2,7 @@ package pubsub
 
 import (
 	"context"
-	"encoding/json"
+	"github.com/joincloud/peers-touch-go/codec"
 
 	log "github.com/joincloud/peers-touch-go/logger"
 	"github.com/joincloud/peers-touch-go/peer"
@@ -21,6 +21,7 @@ type Channel struct {
 	topic    *pubsub.Topic
 	sub      *pubsub.Subscription
 	peerID   peer.PeerID
+	codec    codec.Codec
 	metadata map[string]string
 }
 
@@ -36,7 +37,7 @@ func (ch *Channel) Metadata() map[string]string {
 	return ch.metadata
 }
 
-func JoinChannel(ctx context.Context, opts ...ChannelOption) (ch *Channel, err error) {
+func joinChannel(ctx context.Context, opts ...ChannelOption) (ch *Channel, err error) {
 	defer func() {
 		if err != nil {
 			log.Errorf("join channel error: %s", err)
@@ -49,7 +50,7 @@ func JoinChannel(ctx context.Context, opts ...ChannelOption) (ch *Channel, err e
 	}
 
 	// todo check options
-
+	log.Infof("join channel: %s with name: %v", options.Name, options.Metadata)
 	topic, err := options.Pubsub.Join(options.Name)
 	if err != nil {
 		return nil, err
@@ -67,6 +68,7 @@ func JoinChannel(ctx context.Context, opts ...ChannelOption) (ch *Channel, err e
 		sub:    sub,
 		peerID: options.PeerID,
 		name:   options.Name,
+		codec:  options.Codec,
 		// todo bufSize option
 		Messages: make(chan *Message, DefaultChatMsgBufSize),
 	}
@@ -89,8 +91,7 @@ func (ch *Channel) listen() {
 			continue
 		}
 		cm := &Message{}
-		// todo use codec
-		err = json.Unmarshal(msg.Data, cm)
+		err = ch.codec.Unmarshal(msg.Data, cm)
 		if err != nil {
 			continue
 		}
@@ -106,15 +107,11 @@ func (ch *Channel) ListPeers() []peer.PeerID {
 func (ch *Channel) Publish(msg string) error {
 	m := Message{
 		Body: msg,
-		Header: map[string]string{
-			// todo, more header option
-			"content-type": "application/txt",
-			"from":         ch.peerID.Pretty(),
-		},
+		// todo metadata should not be transfered directly
+		Header: ch.metadata,
 	}
 
-	// todo, use codec option
-	bytes, err := json.Marshal(m)
+	bytes, err := ch.codec.Marshal(m)
 	if err != nil {
 		return err
 	}

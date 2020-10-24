@@ -73,6 +73,7 @@ type ChannelOptions struct {
 	PeerID peer.PeerID
 	// todo metadata struct
 	Metadata map[string]string
+	Codec    codec.Codec
 }
 
 type ChannelOption func(o *ChannelOptions)
@@ -110,6 +111,12 @@ func ChannelMetadata(metadata map[string]string) ChannelOption {
 func ChannelPubsub(pubsub *pubsub.PubSub) ChannelOption {
 	return func(o *ChannelOptions) {
 		o.Pubsub = pubsub
+	}
+}
+
+func ChannelCodec(cc codec.Codec) ChannelOption {
+	return func(o *ChannelOptions) {
+		o.Codec = cc
 	}
 }
 

@@ -2,11 +2,12 @@ package pubsub
 
 import (
 	"context"
-	"github.com/joincloud/peers-touch-go/logger"
+	"fmt"
 	"sync"
 
 	iface "github.com/ipfs/interface-go-ipfs-core"
 	"github.com/joincloud/peers-touch-go/codec"
+	"github.com/joincloud/peers-touch-go/logger"
 	"github.com/pkg/errors"
 )
 
@@ -14,8 +15,10 @@ type Broker interface {
 	Init(...BrokerOption) error
 	Pub(ctx context.Context, event Event) error
 	Sub(ctx context.Context, topic string, handler Handler) (Subscriber, error)
-	Codec() codec.Codec
 	Unsub(topic string) error
+	Join(ctx context.Context, opts ...ChannelOption) (ch *Channel, err error)
+	// Connect(id peer.PeerID) (err error)
+	Codec() codec.Codec
 	Close() error
 }
 
@@ -50,9 +53,20 @@ type broker struct {
 	subscribers map[string]Subscriber
 	muMux       sync.RWMutex
 	exit        chan chan error
+	chans       map[string]*Channel
+}
+
+func (b *broker) Join(ctx context.Context, opts ...ChannelOption) (ch *Channel, err error) {
+	ch, err = joinChannel(ctx, opts...)
+	if err != nil {
+		return nil, fmt.Errorf("join channel err: %s", err)
+	}
+	b.chans[ch.name] = ch
+	return
 }
 
 func (b *broker) Init(...BrokerOption) error {
+	b.chans = make(map[string]*Channel)
 	return nil
 }
 
@@ -78,6 +92,34 @@ func (b *broker) Pub(ctx context.Context, event Event) (err error) {
 
 	return
 }
+
+/*func (b *broker) Connect(id peer.PeerID) (err error) {
+	// Turn the destination into a multiaddr.
+	maddr, err := multiaddr.NewMultiaddr(*dest)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// Extract the peer ID from the multiaddr.
+	info, err := peer.AddrInfoFromP2pAddr(maddr)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// Add the destination's peer multiaddress in the peerstore.
+	// This will be used during connection and stream creation by libp2p.
+	host.Peerstore().AddAddrs(info.ID, info.Addrs, peerstore.PermanentAddrTTL)
+
+	// Start a stream with the destination.
+	// Multiaddress of the destination peer is fetched from the peerstore using 'peerId'.
+	s, err := host.NewStream(context.Background(), info.ID, "/chat/1.0.0")
+	if err != nil {
+		panic(err)
+	}
+
+	// Create a buffered stream so that read and writes are non blocking.
+	rw := bufio.NewReadWriter(bufio.NewReader(s), bufio.NewWriter(s))
+}*/
 
 func (b *broker) Sub(ctx context.Context, topic string, handler Handler) (Subscriber, error) {
 	b.muMux.Lock()
