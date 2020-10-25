@@ -102,7 +102,7 @@ func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 
 	if opts.IPFS == nil {
 		n, _, err := newIPFSNode(ctx, func(ctx context.Context, id peer2.ID, ps peerstore.Peerstore, options ...golib.Option) (host host.Host, err error) {
-			logger.Debugf("peer2Id is %s", id.String())
+			logger.Debugf("peerId is %s", opts.Host.ID().Pretty())
 			return opts.Host, nil
 		})
 		if err != nil {
@@ -115,7 +115,9 @@ func NewNode(ctx context.Context, options ...Option) (n Node, err error) {
 	}
 
 	if opts.Broker == nil {
-		opts.Broker = pubsub.NewBroker(pubsub.BrokerCoreAPI(opts.IPFS))
+		opts.Broker = pubsub.NewBroker(
+			pubsub.BrokerCoreAPI(opts.IPFS),
+			pubsub.BrokerHost(opts.Host))
 		err = opts.Broker.Init()
 		if err != nil {
 			panic(err)

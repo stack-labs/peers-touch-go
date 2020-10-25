@@ -12,6 +12,7 @@ import (
 
 type boltStore struct {
 	db      *bolt.DB
+	name    string
 	options store.Options
 }
 
@@ -27,6 +28,8 @@ func (b *boltStore) Init(opts ...store.Option) (err error) {
 			log.Errorf("init bolt db err: %s ", err)
 		}
 	}()
+
+	b.name = options.Database
 
 	db, err := bolt.Open(options.Database, 0600, nil)
 	if err != nil {
@@ -132,15 +135,7 @@ func (b *boltStore) List(opts ...store.ListOption) (ret []*store.Record, err err
 	}
 
 	err = b.db.View(func(tx *bolt.Tx) error {
-		// todo 初始化时创建
-		if tx.Bucket([]byte(options.Table)) == nil {
-			_, err := tx.CreateBucket([]byte(options.Table))
-			if err != nil {
-				log.Errorf("create bucket error: %s", err)
-				return err
-			}
-		}
-
+		log.Debugf("bolt get cursor for %s", options.Table)
 		c := tx.Bucket([]byte(options.Table)).Cursor()
 		min := []byte(fmt.Sprint(options.Offset))
 		max := []byte(fmt.Sprint(options.Offset + options.Limit))

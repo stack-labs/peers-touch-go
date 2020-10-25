@@ -8,8 +8,9 @@ import (
 
 	iface "github.com/ipfs/interface-go-ipfs-core"
 	"github.com/joincloud/peers-touch-go/codec"
-	"github.com/joincloud/peers-touch-go/logger"
+	log "github.com/joincloud/peers-touch-go/logger"
 	"github.com/joincloud/peers-touch-go/peer"
+	"github.com/libp2p/go-libp2p-core/network"
 	peerlib "github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/peerstore"
 	"github.com/multiformats/go-multiaddr"
@@ -54,6 +55,7 @@ func (e *event) Message() Message {
 }
 
 type broker struct {
+	options     BrokerOptions
 	codec       codec.Codec
 	coreAPI     iface.CoreAPI
 	host        peer.Host
@@ -71,40 +73,64 @@ func (b *broker) Touch(ctx context.Context, opts ...TouchOption) (err error) {
 
 	defer func() {
 		if err != nil {
-			logger.Errorf("touch dest error: %s", err)
+			log.Errorf("touch dest error: %s", err)
 		}
 	}()
 
 	// todo check more options
 	if options.DestAddr == "" {
-		return fmt.Errorf("touch dest node shouldn't be nil")
-	}
+		b.host.SetStreamHandler("/chat/1.0.0", func(s network.Stream) {
+			rw := bufio.NewReadWriter(bufio.NewReader(s), bufio.NewWriter(s))
+			if options.Writer != nil {
+				go options.Writer(rw)
+			}
+			if options.Reader != nil {
+				go options.Reader(rw)
+			}
+		})
 
-	maddr, err := multiaddr.NewMultiaddr(options.DestAddr)
-	if err != nil {
-		return fmt.Errorf("touch dest node err: %s", err)
-	}
+		var port string
+		for _, la := range b.host.Network().ListenAddresses() {
+			if p, err := la.ValueForProtocol(multiaddr.P_TCP); err == nil {
+				port = p
+				break
+			}
+		}
 
-	info, err := peerlib.AddrInfoFromP2pAddr(maddr)
-	if err != nil {
-		return fmt.Errorf("touch get dest node addr info err: %s", err)
-	}
+		if port == "" {
+			panic("was not able to find actual local port")
+		}
 
-	b.host.Peerstore().AddAddrs(info.ID, info.Addrs, peerstore.PermanentAddrTTL)
+		log.Infof("Run './chat -d /ip4/127.0.0.1/tcp/%v/p2p/%s' on another console.\n", port, b.host.ID().Pretty())
+		log.Infof("You can replace 127.0.0.1 with public IP as well.")
+		log.Infof("\nWaiting for incoming connection\n\n")
+	} else {
+		maddr, err := multiaddr.NewMultiaddr(options.DestAddr)
+		if err != nil {
+			return fmt.Errorf("touch dest node err: %s", err)
+		}
 
-	s, err := b.host.NewStream(context.Background(), info.ID, "/chat/1.0.0")
-	if err != nil {
-		return fmt.Errorf("touch make new stream err: %s", err)
-	}
+		info, err := peerlib.AddrInfoFromP2pAddr(maddr)
+		if err != nil {
+			return fmt.Errorf("touch get dest node addr info err: %s", err)
+		}
 
-	rw := bufio.NewReadWriter(bufio.NewReader(s), bufio.NewWriter(s))
+		b.host.Peerstore().AddAddrs(info.ID, info.Addrs, peerstore.PermanentAddrTTL)
 
-	if options.Writer != nil {
-		go options.Writer(rw)
-	}
+		s, err := b.host.NewStream(context.Background(), info.ID, "/chat/1.0.0")
+		if err != nil {
+			return fmt.Errorf("touch make new stream err: %s", err)
+		}
 
-	if options.Reader != nil {
-		go options.Reader(rw)
+		rw := bufio.NewReadWriter(bufio.NewReader(s), bufio.NewWriter(s))
+
+		if options.Writer != nil {
+			go options.Writer(rw)
+		}
+
+		if options.Reader != nil {
+			go options.Reader(rw)
+		}
 	}
 
 	return nil
@@ -120,21 +146,17 @@ func (b *broker) Join(ctx context.Context, opts ...ChannelOption) (ch *Channel, 
 }
 
 func (b *broker) Init(opts ...BrokerOption) (err error) {
-	options := BrokerOptions{}
-	for _, opt := range opts {
-		opt(&options)
-	}
-
 	defer func() {
 		if err != nil {
-			logger.Errorf("init broker error: %s", err)
+			log.Errorf("init broker error: %s", err)
 		}
 	}()
 
-	if options.host == nil {
+	if b.options.host == nil {
 		return fmt.Errorf("broker's host shouldn't be nil")
 	}
 
+	b.host = b.options.host
 	b.chans = make(map[string]*Channel)
 	return nil
 }
@@ -153,7 +175,7 @@ func (b *broker) Pub(ctx context.Context, event Event) (err error) {
 		panic(err)
 	}
 
-	logger.Debugf("pub id: %s", id.ID())
+	log.Debugf("pub id: %s", id.ID())
 	err = b.coreAPI.PubSub().Publish(ctx, event.Name(), bytes)
 	if err != nil {
 		return errors.Wrap(err, "unable to publish data on pubsub")
@@ -198,9 +220,9 @@ func (b *broker) Close() error {
 }
 
 func NewBroker(options ...BrokerOption) Broker {
-	bo := &BrokerOptions{}
+	bo := BrokerOptions{}
 	for _, option := range options {
-		option(bo)
+		option(&bo)
 	}
 
 	if bo.codec == nil {
@@ -208,6 +230,7 @@ func NewBroker(options ...BrokerOption) Broker {
 	}
 
 	b := &broker{
+		options:     bo,
 		codec:       bo.codec,
 		coreAPI:     bo.coreAPI,
 		subscribers: map[string]Subscriber{},
