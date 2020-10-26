@@ -1,7 +1,6 @@
 package bolt
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 
@@ -135,21 +134,25 @@ func (b *boltStore) List(opts ...store.ListOption) (ret []*store.Record, err err
 	}
 
 	err = b.db.View(func(tx *bolt.Tx) error {
-		log.Debugf("bolt get cursor for %s", options.Table)
+		log.Debugf("bolt get cursor for %s %d", options.Table, options.Offset)
 		c := tx.Bucket([]byte(options.Table)).Cursor()
-		min := []byte(fmt.Sprint(options.Offset))
-		max := []byte(fmt.Sprint(options.Offset + options.Limit))
+		min := []byte(fmt.Sprintf("%08d", options.Offset))
+		limit := options.Limit
+		if limit == 0 {
+			limit = 10
+		}
 
-		log.Infof("dd: %d", tx.Bucket([]byte(options.Table)).Stats().KeyN)
-		log.Debugf("list min: %s, max: %s", string(min), string(max))
-
-		for k, v := c.Seek(min); k != nil && bytes.Compare(k, max) <= 0; k, v = c.Next() {
+		var count uint = 0
+		for k, v := c.Seek(min); k != nil; k, v = c.Next() {
+			if count == limit {
+				break
+			}
 			re := &store.Record{}
 			// todo codec
 			_ = json.Unmarshal(v, re)
 			re.Key = string(k)
 			ret = append(ret, re)
-			log.Debugf("list k: %v", string(k))
+			count++
 		}
 
 		return nil
