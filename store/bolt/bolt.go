@@ -140,12 +140,16 @@ func (b *boltStore) List(opts ...store.ListOption) (ret []*store.Record, err err
 		min := []byte(fmt.Sprint(options.Offset))
 		max := []byte(fmt.Sprint(options.Offset + options.Limit))
 
+		log.Infof("dd: %d", tx.Bucket([]byte(options.Table)).Stats().KeyN)
+		log.Debugf("list min: %s, max: %s", string(min), string(max))
+
 		for k, v := c.Seek(min); k != nil && bytes.Compare(k, max) <= 0; k, v = c.Next() {
 			re := &store.Record{}
 			// todo codec
 			_ = json.Unmarshal(v, re)
 			re.Key = string(k)
 			ret = append(ret, re)
+			log.Debugf("list k: %v", string(k))
 		}
 
 		return nil

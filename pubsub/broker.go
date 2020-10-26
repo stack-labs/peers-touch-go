@@ -98,12 +98,8 @@ func (b *broker) Touch(ctx context.Context, opts ...TouchOption) (err error) {
 		}
 
 		if port == "" {
-			panic("was not able to find actual local port")
+			log.Error("was not able to find actual local port")
 		}
-
-		log.Infof("Run './chat -d /ip4/127.0.0.1/tcp/%v/p2p/%s' on another console.\n", port, b.host.ID().Pretty())
-		log.Infof("You can replace 127.0.0.1 with public IP as well.")
-		log.Infof("\nWaiting for incoming connection\n\n")
 	} else {
 		maddr, err := multiaddr.NewMultiaddr(options.DestAddr)
 		if err != nil {
