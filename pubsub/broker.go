@@ -79,7 +79,9 @@ func (b *broker) Touch(ctx context.Context, opts ...TouchOption) (err error) {
 
 	// todo check more options
 	if options.DestAddr == "" {
-		b.host.SetStreamHandler("/chat/1.0.0", func(s network.Stream) {
+		b.host.SetStreamHandler("/chat/1.0.0", func(stream network.Stream) {
+			options.StreamHandler(stream)
+		}, /*  func(s network.Stream) {
 			rw := bufio.NewReadWriter(bufio.NewReader(s), bufio.NewWriter(s))
 			if options.Writer != nil {
 				go options.Writer(rw)
@@ -87,19 +89,7 @@ func (b *broker) Touch(ctx context.Context, opts ...TouchOption) (err error) {
 			if options.Reader != nil {
 				go options.Reader(rw)
 			}
-		})
-
-		var port string
-		for _, la := range b.host.Network().ListenAddresses() {
-			if p, err := la.ValueForProtocol(multiaddr.P_TCP); err == nil {
-				port = p
-				break
-			}
-		}
-
-		if port == "" {
-			log.Error("was not able to find actual local port")
-		}
+		}*/)
 	} else {
 		maddr, err := multiaddr.NewMultiaddr(options.DestAddr)
 		if err != nil {
@@ -111,9 +101,9 @@ func (b *broker) Touch(ctx context.Context, opts ...TouchOption) (err error) {
 			return fmt.Errorf("touch get dest node addr info err: %s", err)
 		}
 
+		ctx := context.WithValue(context.Background(), "test", "123")
 		b.host.Peerstore().AddAddrs(info.ID, info.Addrs, peerstore.PermanentAddrTTL)
-
-		s, err := b.host.NewStream(context.Background(), info.ID, "/chat/1.0.0")
+		s, err := b.host.NewStream(ctx, info.ID, "/chat/1.0.0")
 		if err != nil {
 			return fmt.Errorf("touch make new stream err: %s", err)
 		}

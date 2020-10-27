@@ -135,9 +135,10 @@ type PushOption func(o *PushOptions)
 
 type TouchOptions struct {
 	// multiaddr like /ip4/0.0.0.0/tcp/8988
-	DestAddr string
-	Writer   func(rw *bufio.ReadWriter)
-	Reader   func(rw *bufio.ReadWriter)
+	DestAddr      string
+	Writer        func(rw *bufio.ReadWriter)
+	Reader        func(rw *bufio.ReadWriter)
+	StreamHandler func(handler peer.Stream)
 }
 
 type TouchOption func(o *TouchOptions)
@@ -157,5 +158,11 @@ func TouchReader(reader func(rw *bufio.ReadWriter)) TouchOption {
 func TouchWriter(writer func(rw *bufio.ReadWriter)) TouchOption {
 	return func(o *TouchOptions) {
 		o.Writer = writer
+	}
+}
+
+func TouchStreamHandler(handler func(s peer.Stream)) TouchOption {
+	return func(o *TouchOptions) {
+		o.StreamHandler = handler
 	}
 }
