@@ -2,29 +2,35 @@ package ipfs
 
 import (
 	"github.com/joincloud/peers-touch-go/network/transport"
+	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p-core/protocol"
 )
 
-type ipfsClient struct {
-	conn network.Conn
+type ipfsTransportClient struct {
+	host     host.Host
+	protocol protocol.ID
+	conn     network.Conn
+	local    string
+	remote   string
 }
 
-func (i *ipfsClient) Recv(message *transport.Message) error {
+func (i *ipfsTransportClient) Recv(message *transport.Message) error {
 	panic("implement me")
 }
 
-func (i *ipfsClient) Send(message *transport.Message) error {
+func (i *ipfsTransportClient) Send(message *transport.Message) error {
 	panic("implement me")
 }
 
-func (i *ipfsClient) Close() error {
+func (i *ipfsTransportClient) Close() error {
 	panic("implement me")
 }
 
-func (i *ipfsClient) Local() string {
-	panic("implement me")
+func (i *ipfsTransportClient) Local() string {
+	return i.local
 }
 
-func (i *ipfsClient) Remote() string {
-	panic("implement me")
+func (i *ipfsTransportClient) Remote() string {
+	return i.remote
 }
