@@ -6,6 +6,7 @@ import (
 
 	log "github.com/joincloud/peers-touch-go/logger"
 	"github.com/joincloud/peers-touch-go/network/transport"
+	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
@@ -29,21 +30,13 @@ func (i *ipfsTransport) Init(opts ...transport.Option) (err error) {
 		}
 	}()
 
-	h, ok := i.opts.Context.Value(hostKey{}).(host.Host)
-	if !ok {
-		err = fmt.Errorf("transport host shouldn't be nil")
-		return
-	}
-
 	pid, ok := i.opts.Context.Value(protocolIDKey{}).(protocol.ID)
 	if !ok {
 		err = fmt.Errorf("transport protocolID shouldn't be nil")
 		return
 	}
 
-	i.host = h
 	i.protocolID = pid
-
 	return nil
 }
 
@@ -91,10 +84,32 @@ func (i *ipfsTransport) Dial(addr string, opts ...transport.DialOption) (c trans
 	return
 }
 
-func (i *ipfsTransport) Listen(addr string, opts ...transport.ListenOption) (transport.Listener, error) {
-	panic("implement me")
+func (i *ipfsTransport) Listen(addr string, opts ...transport.ListenOption) (tl transport.Listener, err error) {
+	var options transport.ListenOptions
+	for _, o := range opts {
+		o(&options)
+	}
+
+	defer func() {
+		if err != nil {
+			log.Errorf("listen on addr: %s error: %s", addr, err)
+		}
+	}()
+
+	h, err := libp2p.New(options.Context, libp2p.ListenAddrStrings(addr))
+	if err != nil {
+		err = fmt.Errorf("create new host on addr error: %s", addr)
+		return nil, err
+	}
+
+	i.host = h
+
+	return &ipfsTransportListener{
+		it:   i,
+		opts: options,
+	}, nil
 }
 
 func (i *ipfsTransport) String() string {
-	panic("implement me")
+	return "ipfs"
 }
