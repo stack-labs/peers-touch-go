@@ -1,24 +1,39 @@
 package ipfs
 
 import (
+	"bufio"
+
+	"github.com/joincloud/peers-touch-go/codec"
 	"github.com/joincloud/peers-touch-go/network/transport"
+	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p-core/protocol"
 )
 
 type ipfsTransportListener struct {
-	it   *ipfsTransport
-	opts transport.ListenOptions
+	host  host.Host
+	pid   protocol.ID
+	opts  transport.ListenOptions
+	codec codec.Codec
 }
 
 func (i *ipfsTransportListener) Addr() string {
-	return i.it.host.Addrs()[0].String()
+	return i.host.Addrs()[0].String()
 }
 
 func (i *ipfsTransportListener) Close() error {
-	return i.it.host.Close()
+	i.host.RemoveStreamHandler(i.pid)
+	return nil
 }
 
-func (i *ipfsTransportListener) Accept(f func(socket transport.Socket)) error {
-	for {
-
-	}
+func (i *ipfsTransportListener) Accept(fn func(socket transport.Socket)) error {
+	i.host.SetStreamHandler(i.pid, func(s network.Stream) {
+		fn(&ipfsTransportSocket{
+			stream: s,
+			r:      bufio.NewReader(s),
+			w:      bufio.NewWriter(s),
+			codec:  i.codec,
+		})
+	})
+	return nil
 }

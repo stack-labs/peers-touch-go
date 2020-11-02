@@ -13,7 +13,7 @@ import (
 type ipfsTransportSocket struct {
 	stream network.Stream
 	w      *bufio.Writer
-	r      *bufio.Writer
+	r      *bufio.Reader
 	codec  codec.Codec
 	local  string
 	remote string

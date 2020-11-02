@@ -97,6 +97,7 @@ func (b *boltStore) Write(r *store.Record, opts ...store.WriteOption) error {
 
 	return b.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(options.Table))
+		log.Infof("table: %s", options.Table)
 		// todo codec
 		v, _ := json.Marshal(r)
 		err := b.Put([]byte(r.Key), v)

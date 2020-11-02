@@ -2,13 +2,13 @@ package ipfs
 
 import (
 	"fmt"
+	"github.com/joincloud/peers-touch-go/codec"
 	"time"
 
 	log "github.com/joincloud/peers-touch-go/logger"
 	"github.com/joincloud/peers-touch-go/network/transport"
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/host"
-	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/protocol"
 )
@@ -17,6 +17,7 @@ type ipfsTransport struct {
 	opts       transport.Options
 	host       host.Host
 	protocolID protocol.ID
+	codec      codec.Codec
 }
 
 func (i *ipfsTransport) Init(opts ...transport.Option) (err error) {
@@ -50,8 +51,6 @@ func (i *ipfsTransport) Dial(addr string, opts ...transport.DialOption) (c trans
 		opt(&options)
 	}
 
-	var conn network.Conn
-
 	defer func() {
 		if err != nil {
 			log.Errorf("transport %s dial peer %s error: %s", i.String(), addr, err)
@@ -69,16 +68,18 @@ func (i *ipfsTransport) Dial(addr string, opts ...transport.DialOption) (c trans
 		return
 	}
 
-	conn, err = i.host.Network().DialPeer(options.Context, id)
+	conn, err := i.host.NewStream(options.Context, id, i.protocolID)
 	if err != nil {
 		err = fmt.Errorf("transport %s dial peer %s error: %s", i.String(), addr, err)
 		return
 	}
 
 	c = &ipfsTransportClient{
-		conn:   conn,
-		local:  conn.LocalMultiaddr().String(),
-		remote: conn.RemoteMultiaddr().String(),
+		&ipfsTransportSocket{
+			stream: conn,
+			local:  conn.Conn().LocalPeer().String(),
+			remote: conn.Conn().RemotePeer().String(),
+		},
 	}
 
 	return
@@ -105,8 +106,10 @@ func (i *ipfsTransport) Listen(addr string, opts ...transport.ListenOption) (tl 
 	i.host = h
 
 	return &ipfsTransportListener{
-		it:   i,
-		opts: options,
+		host:  h,
+		pid:   i.protocolID,
+		opts:  options,
+		codec: i.codec,
 	}, nil
 }
 
