@@ -2,8 +2,8 @@ package ipfs
 
 import (
 	"context"
-	"github.com/joincloud/peers-touch-go/network/transport"
 	"github.com/libp2p/go-libp2p-core/protocol"
+	"github.com/stack-labs/peers-touch-go/network/transport"
 )
 
 type protocolIDKey struct{}

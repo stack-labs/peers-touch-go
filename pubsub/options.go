@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"context"
 	iface "github.com/ipfs/interface-go-ipfs-core"
-	"github.com/joincloud/peers-touch-go/codec"
-	"github.com/joincloud/peers-touch-go/peer"
 	"github.com/libp2p/go-libp2p-pubsub"
+	"github.com/stack-labs/peers-touch-go/codec"
+	"github.com/stack-labs/peers-touch-go/peer"
 )
 
 type BrokerOptions struct {

@@ -8,14 +8,14 @@ import (
 	"github.com/ipfs/go-ipfs/core/coreapi"
 	"github.com/ipfs/go-ipfs/core/node/libp2p"
 	iface "github.com/ipfs/interface-go-ipfs-core"
-	"github.com/joincloud/peers-touch-go/file"
-	"github.com/joincloud/peers-touch-go/logger"
-	"github.com/joincloud/peers-touch-go/peer"
-	"github.com/joincloud/peers-touch-go/pubsub"
 	golib "github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/host"
 	peer2 "github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/peerstore"
+	"github.com/stack-labs/peers-touch-go/file"
+	"github.com/stack-labs/peers-touch-go/logger"
+	"github.com/stack-labs/peers-touch-go/peer"
+	"github.com/stack-labs/peers-touch-go/pubsub"
 )
 
 var (

@@ -2,11 +2,11 @@ package pubsub
 
 import (
 	"context"
-	"github.com/joincloud/peers-touch-go/codec"
+	"github.com/stack-labs/peers-touch-go/codec"
 
-	log "github.com/joincloud/peers-touch-go/logger"
-	"github.com/joincloud/peers-touch-go/peer"
 	"github.com/libp2p/go-libp2p-pubsub"
+	log "github.com/stack-labs/peers-touch-go/logger"
+	"github.com/stack-labs/peers-touch-go/peer"
 )
 
 var (

@@ -3,11 +3,11 @@ package ipfs
 import (
 	"bufio"
 
-	"github.com/joincloud/peers-touch-go/codec"
-	"github.com/joincloud/peers-touch-go/network/transport"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/protocol"
+	"github.com/stack-labs/peers-touch-go/codec"
+	"github.com/stack-labs/peers-touch-go/network/transport"
 )
 
 type ipfsTransportListener struct {

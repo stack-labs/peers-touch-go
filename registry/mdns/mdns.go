@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/joincloud/peers-touch-go/registry"
 	"github.com/libp2p/go-libp2p/p2p/discovery"
+	"github.com/stack-labs/peers-touch-go/registry"
 )
 
 // DiscoveryInterval is how often we re-publish our mDNS records.

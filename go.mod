@@ -1,9 +1,9 @@
-module github.com/joincloud/peers-touch-go
+module github.com/stack-labs/peers-touch-go
 
 go 1.14
 
 require (
-	github.com/boltdb/bolt v1.3.1 // indirect
+	github.com/boltdb/bolt v1.3.1
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/ipfs/go-ipfs v0.6.0

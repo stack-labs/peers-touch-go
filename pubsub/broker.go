@@ -7,14 +7,14 @@ import (
 	"sync"
 
 	iface "github.com/ipfs/interface-go-ipfs-core"
-	"github.com/joincloud/peers-touch-go/codec"
-	log "github.com/joincloud/peers-touch-go/logger"
-	"github.com/joincloud/peers-touch-go/peer"
 	"github.com/libp2p/go-libp2p-core/network"
 	peerlib "github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/peerstore"
 	"github.com/multiformats/go-multiaddr"
 	"github.com/pkg/errors"
+	"github.com/stack-labs/peers-touch-go/codec"
+	log "github.com/stack-labs/peers-touch-go/logger"
+	"github.com/stack-labs/peers-touch-go/peer"
 )
 
 type Broker interface {

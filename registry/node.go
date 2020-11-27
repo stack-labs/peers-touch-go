@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/joincloud/peers-touch-go/peer"
 	peer2 "github.com/libp2p/go-libp2p-core/peer"
+	"github.com/stack-labs/peers-touch-go/peer"
 )
 
 type Node struct {

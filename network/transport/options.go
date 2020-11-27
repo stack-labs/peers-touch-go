@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"time"
 
-	"github.com/joincloud/peers-touch-go/codec"
+	"github.com/stack-labs/peers-touch-go/codec"
 )
 
 type Options struct {

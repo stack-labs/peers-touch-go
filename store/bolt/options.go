@@ -3,7 +3,7 @@ package bolt
 import (
 	"context"
 
-	"github.com/joincloud/peers-touch-go/store"
+	"github.com/stack-labs/peers-touch-go/store"
 )
 
 type buckets struct{}

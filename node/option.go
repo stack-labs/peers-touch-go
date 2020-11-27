@@ -2,9 +2,9 @@ package node
 
 import (
 	iface "github.com/ipfs/interface-go-ipfs-core"
-	"github.com/joincloud/peers-touch-go/peer"
-	"github.com/joincloud/peers-touch-go/pubsub"
 	"github.com/libp2p/go-libp2p"
+	"github.com/stack-labs/peers-touch-go/peer"
+	"github.com/stack-labs/peers-touch-go/pubsub"
 )
 
 const (

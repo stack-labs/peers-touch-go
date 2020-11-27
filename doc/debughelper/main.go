@@ -108,7 +108,7 @@ func main() {
 			path := "git@github.com:ipfs/" + g + ".git"
 			fmt.Println(path)
 			cmd := exec.Command("git", "clone", path)
-			cmd.Dir = "/Users/shuxian/Projects/joincloud/debug-libs/ipfs"
+			cmd.Dir = "/Users/shuxian/Projects/stack-labs/debug-libs/ipfs"
 			stdout, err := cmd.CombinedOutput()
 			fmt.Printf("start %s-%s\n", stdout, err)
 		}(g)

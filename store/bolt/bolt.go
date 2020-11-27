@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/boltdb/bolt"
-	log "github.com/joincloud/peers-touch-go/logger"
-	"github.com/joincloud/peers-touch-go/store"
+	log "github.com/stack-labs/peers-touch-go/logger"
+	"github.com/stack-labs/peers-touch-go/store"
 )
 
 type boltStore struct {

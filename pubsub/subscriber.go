@@ -6,10 +6,10 @@ import (
 
 	"github.com/ipfs/go-ipfs/core/coreapi"
 	"github.com/ipfs/interface-go-ipfs-core"
-	"github.com/joincloud/peers-touch-go/codec"
-	"github.com/joincloud/peers-touch-go/logger"
-	"github.com/joincloud/peers-touch-go/peer"
 	"github.com/pkg/errors"
+	"github.com/stack-labs/peers-touch-go/codec"
+	"github.com/stack-labs/peers-touch-go/logger"
+	"github.com/stack-labs/peers-touch-go/peer"
 )
 
 var (

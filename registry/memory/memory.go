@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/joincloud/peers-touch-go/registry"
+	"github.com/stack-labs/peers-touch-go/registry"
 )
 
 type Registry struct {

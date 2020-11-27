@@ -1,8 +1,8 @@
 package logrus
 
 import (
-	"github.com/joincloud/peers-touch-go/logger"
 	"github.com/sirupsen/logrus"
+	"github.com/stack-labs/peers-touch-go/logger"
 )
 
 type Options struct {

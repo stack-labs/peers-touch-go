@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/joincloud/peers-touch-go/pubsub"
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/stack-labs/peers-touch-go/pubsub"
 
-	_ "github.com/joincloud/peers-touch-go/codec/json"
-	_ "github.com/joincloud/peers-touch-go/logger/logrus"
+	_ "github.com/stack-labs/peers-touch-go/codec/json"
+	_ "github.com/stack-labs/peers-touch-go/logger/logrus"
 )
 
 func TestBrokerSub(t *testing.T) {

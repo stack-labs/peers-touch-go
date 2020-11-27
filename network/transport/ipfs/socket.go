@@ -3,11 +3,11 @@ package ipfs
 import (
 	"bufio"
 	"fmt"
-	"github.com/joincloud/peers-touch-go/codec"
-	log "github.com/joincloud/peers-touch-go/logger"
+	"github.com/stack-labs/peers-touch-go/codec"
+	log "github.com/stack-labs/peers-touch-go/logger"
 
-	"github.com/joincloud/peers-touch-go/network/transport"
 	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/stack-labs/peers-touch-go/network/transport"
 )
 
 type ipfsTransportSocket struct {

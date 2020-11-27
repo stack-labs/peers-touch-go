@@ -2,15 +2,15 @@ package ipfs
 
 import (
 	"fmt"
-	"github.com/joincloud/peers-touch-go/codec"
+	"github.com/stack-labs/peers-touch-go/codec"
 	"time"
 
-	log "github.com/joincloud/peers-touch-go/logger"
-	"github.com/joincloud/peers-touch-go/network/transport"
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/protocol"
+	log "github.com/stack-labs/peers-touch-go/logger"
+	"github.com/stack-labs/peers-touch-go/network/transport"
 )
 
 type ipfsTransport struct {
