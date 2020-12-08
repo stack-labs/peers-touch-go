@@ -1,12 +1,10 @@
 # Peers-Touch-Go
 
-Edge social network communication dev framework in Go and based on IPFS. It supports Sub/Pub msg and file.   
+Edge social network communication dev framework in Go. It will support Sub/Pub msg and exchange file.   
 
 Why we create this?
 
-We need to build a world without AI, BigData. Human in this world should respect each other's private info. No man analyzes our data in the place we don't know.
-
-No one can pry into our personal life and trace any private things.
+We need to build a world without AI, BigData. Huge companies are prying into our personal life and trace whole private things. Human in this world should respect each other's privacy. No man analyzes our data in the place we don't know.
 
 So now you know, We hate the big companies hold all data of ours. 
 
@@ -58,7 +56,11 @@ Node communication looks like:
 
 # 中文
 
-边缘社交网络通信开发框架，基于P2P传输协议（IPFS）的远程通信框架，提供去中心化的通信组件，支持消息订阅、发布，支持远程文件传输。
+边缘社交网络通信开发框架，提供去中心化的通信组件，支持消息订阅、发布，支持远程文件传输。
+
+在这个到处都是埋点上报，数据分析，精准广告的年代，我们隐私在各个厂商之间共享，他们带来所谓的方便，是基于对我们隐私的窥探。
+
+我们需要构建一个真实的用户互联网络生态，支持去除个人数据，匿名交流，拥有不可篡改的受信机制。
 
 ![image](./doc/images/network-framework.png)
 
