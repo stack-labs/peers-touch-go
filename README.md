@@ -1,8 +1,12 @@
 # Peers-Touch-Go
 
+## Archived
+
+Please move to [stack](https://github.com/stack-labs/stack)
+
 Edge social network communication dev framework in Go. It will support Sub/Pub msg and exchange file.   
 
-Why we create this?
+Why do we create this?
 
 We need to build a world without AI, BigData. Huge companies are prying into our personal life and trace whole private things. Human in this world should respect each other's privacy. No man analyzes our data in the place we don't know.
 
